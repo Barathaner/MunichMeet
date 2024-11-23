@@ -12,25 +12,8 @@ CORS(app)
 all_users = {}
 all_events = {}
 
-@eventcreator.route('/')
-def home():
-    return send_from_directory(eventcreator.template_folder, 'index.html')
 
-
-@eventcreator.route('/_next/static<path:path>')
-def serve_static(path):
-    return send_from_directory('out/_next/static', path)
-
-
-@eventcreator.route('/<path:path>')
-def serve_other_static(path):
-    return send_from_directory('out', path)
-
-
-# APIs
-@app.route('/api/getallevents', methods=['GET'])
-def getallevents():
-    def serialize_event(event):
+def serialize_event(event):
         return {
             "eventid": event["eventid"],
             "name": event["name"],
@@ -45,6 +28,27 @@ def getallevents():
             "description": event["description"],
             "attendees": event["attendees"],
         }
+
+
+@app.route('/')
+def home():
+    return send_from_directory(app.template_folder, 'index.html')
+
+
+@app.route('/_next/static<path:path>')
+def serve_static(path):
+    return send_from_directory('out/_next/static', path)
+
+
+@app.route('/<path:path>')
+def serve_other_static(path):
+    return send_from_directory('out', path)
+
+
+# APIs
+@app.route('/api/getallevents', methods=['GET'])
+def getallevents():
+    
     
     # Serialize all events
     serialized_events = {key: serialize_event(event) for key, event in all_events.items()}
@@ -52,7 +56,7 @@ def getallevents():
     return jsonify({'events': serialized_events}), 200
 
 
-@eventcreator.route('/api/participate', methods=['GET'])
+@app.route('/api/participate', methods=['GET'])
 def participate():
     try:
         userid = int(request.args.get('userid'))
@@ -69,7 +73,7 @@ def participate():
     return jsonify({ 'status': f'Successfully registrated User with userid={userid} to Event with eventid={eventid}' })
 
 
-@eventcreator.route('/api/getotherusersinradius', methods=['POST'])
+@app.route('/api/getotherusersinradius', methods=['POST'])
 def getotherusersinradius():
     R = 6_371_000  # Earth's radius in meters
 
@@ -100,7 +104,7 @@ def getotherusersinradius():
     return jsonify({ 'users' : users_in_radius }), 201
 
 
-@eventcreator.route('/api/updateuserpos', methods=['POST'])
+@app.route('/api/updateuserpos', methods=['POST'])
 def updateuserpos():
     try:
         new_position = jsonify(request.args.get('position'))
@@ -121,7 +125,7 @@ def updateuserpos():
     return jsonify({ 'status': 'Position updated successfully!' }), 201
 
 
-@eventcreator.route('/api/regenerate_all_events', methods=['GET'])
+@app.route('/api/regenerate_all_events', methods=['GET'])
 def regenerate_all_events():
     global all_events
     all_events.clear()
