@@ -47,7 +47,7 @@ export default function Home() {
     console.log(events);
   }, []); // Empty dependency array ensures it runs only once
   // Get the user points from the context
-  const { points, addPoints, resetPoints, name } = useUserPoints();
+  const { points, addPoints, resetPoints, name ,showSuccess} = useUserPoints();
 
   function addUserMarker(map) {
     // Create a custom HTML element for the marker
@@ -143,7 +143,7 @@ export default function Home() {
       </button>
 
       {/* QrReaderFeedback Overlay */}
-      <QrReaderFeedback />
+      {showSuccess && <QrReaderFeedback />}
 
     </div>
   );
