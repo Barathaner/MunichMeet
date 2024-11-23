@@ -16,13 +16,14 @@ export default function Home() {
     lng: null,
   });
 
+  async function getEvent() {
+    const res = await fetch('http://localhost:8000//api/getallevents');
+    const data = await res.json();
+    return data;
+  }
+
   // Get the user points from the context
   const { points, addPoints, resetPoints, name } = useUserPoints();
-  const dummyevent = {title:"dddd",description:"iudshfiu",date:"12.92.23",location:"kasjdi"};
-
-  const handleswitchapage = () => {
-    router.push("/d");
-  };
 
   function addUserMarker(map) {
     // Create a custom HTML element for the marker
