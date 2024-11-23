@@ -47,8 +47,8 @@ def test_regenerate_all_events():
 
 
 if __name__ == "__main__":
-    #test_get_all_events()
-    #test_participate()
-    #test_get_other_users_in_radius()
-    #test_update_user_pos()
+    test_get_all_events()
+    test_participate()
+    test_get_other_users_in_radius()
+    test_update_user_pos()
     test_regenerate_all_events()
