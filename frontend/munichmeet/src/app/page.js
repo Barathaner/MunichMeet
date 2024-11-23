@@ -9,13 +9,11 @@ import QrReaderFeedback from './components/QrReaderFeedback';
 
 export default function Home() {
   const router = useRouter();
-  const [isOverlayVisible, setIsOverlayVisible] = useState(false); // State to toggle the overlay
-
+  
   const [userPosition, setUserPosition] = useState({
     lat: null,
     lng: null,
   });
-  
   // Get the user points from the context
   const { points, addPoints, resetPoints,name } = useUserPoints();
 
@@ -71,76 +69,29 @@ export default function Home() {
     };
   }, []);
 
-return (
-  <div className="h-screen flex flex-col relative">
-    {/* Overlay after successful QR reading */}
-    {isOverlayVisible && (
+  return (
+    <div className="h-screen flex flex-col relative">
+      {/* Map Container */}
+      <div id="map" className="flex-1"></div>
+
+      {points} {name}
       
-      <div
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)', // Center the div
-        width: '60%', // Adjust width as needed
-        height: '60%', // Adjust height as needed
-        backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent background
-        zIndex: 1000, // Ensure it's above the map
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        color: 'white',
-        borderRadius: '15px', // Optional: rounded corners for the overlay
-      }}
-    >
-      <h1 className="text-2xl font-bold">Overlay Content</h1>
-      <p>This is the overlay component</p>
+      <button onClick={() => addPoints(10)}>Add Points</button>
+      <button onClick={handleswitchapage}>switch page</button>
+      {/* Logo Overlay */}
+      <div className="absolute top-3 left-1/2 transform -translate-x-1/2 pointer-events-none z-50">
+        <img
+          src="/logo.png"
+          alt="Logo"
+          className="w-24 h-24 object-contain rounded-full"
+        />
+      </div>
+
+      {/* QrReaderFeedback Overlay */}
       <QrReaderFeedback />
-      <button
-        onClick={() => setIsOverlayVisible(false)}
-        style={{
-          marginTop: '20px',
-          padding: '10px 20px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        Close Overlay
-      </button>
+
     </div>
-
-        )}
-
-    {/* Map Container */}
-    <div id="map" className="flex-1"></div>
-
-    {true && (
-      <>
-        {points} {name}
-        <button onClick={() => addPoints(10)}>Add Points</button>
-        <button onClick={handleswitchapage}>Switch Page</button>
-        <button
-          onClick={() => setIsOverlayVisible(true)} // Show overlay
-        >
-          Show Overlay
-        </button>
-      </>
-    )}
-
-    {/* Logo Overlay */}
-    <div className="absolute top-3 left-1/2 transform -translate-x-1/2 pointer-events-none z-50">
-      <img
-        src="/logo.png"
-        alt="Logo"
-        className="w-24 h-24 object-contain rounded-full"
-      />
-    </div>
-  </div>
-);
+  );
 
 }
 
@@ -205,16 +156,7 @@ function initializeUserPosition(setUserPosition) {
 }
 
 function addUserMarker(map, userPosition) {
-  // Create a custom HTML element for the marker
-  const el = document.createElement('div');
-  el.style.backgroundImage = `url('/usermarker.png')`; // Path to your custom icon
-  el.style.width = '70px'; // Set the width of the icon
-  el.style.height = '70px'; // Set the height of the icon
-  el.style.backgroundSize = 'contain'; // Ensure the icon fits within the bounds
-  el.style.backgroundRepeat = 'no-repeat'; // Prevent tiling
-  el.style.borderRadius = '50%'; // Optional: make it circular
-
-  return new mapboxgl.Marker({ element: el })
+  return new mapboxgl.Marker({ color: 'blue' })
     .setLngLat([userPosition.lng, userPosition.lat])
     .setPopup(
       new mapboxgl.Popup({ offset: 25 }).setHTML(
