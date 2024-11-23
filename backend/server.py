@@ -89,7 +89,7 @@ def getotherusersinradius():
         distance = R * c
 
         if distance <= radius:
-            users_in_radius.append(user)
+            users_in_radius.add(user)
         
     return jsonify({ 'users' : users_in_radius }), 201
 
@@ -135,7 +135,7 @@ def loginorregistrateuser():
     if userid is None:
         new_user = User(position['latitude'], position['longitude'])
         userid = new_user.userid
-        all_users.append(new_user)
+        all_users.add(new_user)
     
     return jsonify({ 'userid': userid }), 201
 
