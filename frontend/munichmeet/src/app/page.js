@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useUserPoints } from './context/context';
@@ -9,9 +9,12 @@ import EventModal from './components/EventModal';
 import Scoreboard from './components/Scoreboard';
 export default function Home() {
   const router = useRouter();
+  let map = null;
   const [showEvent, setShowEvent] = useState(true);
+
+  const mapRef = useRef(null); // Reference for the map
   const [events, setEvents] = useState([]); // State to store events
-  const dummyevent = {title:"dddd",description:"iudshfiu",date:"12.92.23",location:"kasjdi"};
+  const dummyevent = { title: "dddd", description: "iudshfiu", date: "12.92.23", location: "kasjdi" };
 
   const [userPosition, setUserPosition] = useState({
     lat: null,
@@ -25,25 +28,32 @@ export default function Home() {
         'Content-Type': 'application/json', // Ensures compatibility with Flask-CORS
       },
     });
-    
+
     const data = await res.json(); // Parse JSON response
     return data;
   }
-  
   useEffect(() => {
-    // Fetch events and update state
+    let intervalId;
+
     const fetchEvents = async () => {
       try {
         const data = await getEvent();
-        console.log(data);
+        setEvents(Object.values(data.events)); // Convert object to array
+
       } catch (error) {
         console.error('Error fetching events:', error);
       }
     };
 
+    // Initial fetch and then set interval
     fetchEvents();
-    console.log(events);
-  }, []); // Empty dependency array ensures it runs only once
+    intervalId = setInterval(fetchEvents, 5000); // Run every 5 seconds
+
+    // Cleanup the interval on unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []); // Empty dependency array ensures it runs only once on mount
   // Get the user points from the context
   const { points, addPoints, resetPoints, name } = useUserPoints();
 
@@ -56,24 +66,58 @@ export default function Home() {
     el.style.backgroundSize = 'contain'; // Ensure the icon fits within the bounds
     el.style.backgroundRepeat = 'no-repeat'; // Prevent tiling
     el.style.borderRadius = '50%'; // Optional: make it circular
-  
+
     return new mapboxgl.Marker({ element: el })
       .setLngLat([userPosition.lng, userPosition.lat])
       .addTo(map);
   }
-  
-  function initializeMap() {
-    if (userPosition.lat == null || userPosition.lng == null) {
-      return new mapboxgl.Map({
-        container: 'map', // container ID
-        style: 'mapbox://styles/mapbox/navigation-night-v1', // Mapbox style URL
-        center: [userPosition.lat, userPosition.lng], // Default starting position [lng, lat]
-        zoom: 15.5, // Starting zoom
-        pitch: 45, // Tilt the map
-        bearing: -17.6, // Rotate the map
-        antialias: true, // Enables smoother edges for 3D objects
-      });
+
+    function addEventMarker(event, map) {
+      // Create a custom HTML element for the marker
+      console.log(event);
+      if (event && map) {
+        console.log(event);
+        const el = document.createElement('div');
+        el.style.backgroundImage = `url('/usermarker.png')`; // Path to your custom icon
+        el.style.width = '70px'; // Set the width of the icon
+        el.style.height = '70px'; // Set the height of the icon
+        el.style.backgroundSize = 'contain'; // Ensure the icon fits within the bounds
+        el.style.backgroundRepeat = 'no-repeat'; // Prevent tiling
+        el.style.borderRadius = '50%'; // Optional: make it circular
+        // Create a popup with event information
+        const popupContent = `
+        <div style="text-align: center; color: black;">
+          <h3 style="margin-bottom: 5px; color: black;">${event.name}</h3>
+          <img src="${event.place.img_url}" alt="Event Image" style="width: 150px; height: auto; border-radius: 10px; margin-bottom: 10px;">
+          <p style="color: black;">${event.description}</p>
+          <p style="color: black;"><strong>Date:</strong> ${new Date(event.date).toLocaleString()}</p>
+          <p style="color: black;"><strong>Location:</strong> ${event.place.name}</p>
+        </div>
+        `;
+
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent);
+        return new mapboxgl.Marker({ element: el })
+          .setLngLat([event.place.lon, event.place.lat])
+          .setPopup(popup) // Associate the popup with the marker
+
+          .addTo(map);
+      }
+
     }
+
+
+  async function initEvents() {
+    const fetchEvents = async () => {
+      try {
+        const data = await getEvent();
+        setEvents(Object.values(data.events)); // Convert object to array
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
+    // Initial fetch and then set interval
+    fetchEvents();
   }
 
   useEffect(() => {
@@ -81,25 +125,35 @@ export default function Home() {
 
     // Get user's current location
     initializeUserPosition(setUserPosition);
+    initEvents()
     // Initialize the map
-    const map = initializeMap();
+    if (!mapRef.current) {
+      // Initialize the map
+      mapRef.current = new mapboxgl.Map({
+        container: 'map', // container ID
+        style: 'mapbox://styles/mapbox/dark-v11', // Mapbox style URL
+        center: [11.576124, 48.137154], // Default center (e.g., Munich)
+        zoom: 12,
 
-    // Add 3D buildings layer
-    map.on('style.load', () => add3DBuildingsLayer(map));
+      });
+      // Add 3D buildings layer
+      mapRef.current.on('style.load', () => add3DBuildingsLayer(mapRef.current));
 
-    //add naviation control
-    map.addControl(new mapboxgl.NavigationControl());
+      //add naviation control
+      mapRef.current.addControl(new mapboxgl.NavigationControl());
 
 
-    // Add marker for user's current position
-    const userMarker = addUserMarker(map);
+      // Add marker for user's current position
+      const userMarker = addUserMarker(mapRef.current);
+      // Simulate user movement
+      const movementInterval = simulateUserMovement(
+        userMarker,
+        mapRef.current,
+        setUserPosition
+      );
+    }
 
-    // Simulate user movement
-    const movementInterval = simulateUserMovement(
-      userMarker,
-      map,
-      setUserPosition
-    );
+
 
     // Cleanup on unmount
     return () => {
@@ -108,6 +162,16 @@ export default function Home() {
     };
   }, []);
 
+
+  useEffect(() => {
+
+    if (mapRef.current) {
+      // Add event markers
+      events.forEach((event) => {
+        addEventMarker(event, mapRef.current);
+      });
+    }
+  }, [events]);
   return (
     <div className="h-screen flex flex-col relative">
       {/* Map Container */}
@@ -122,11 +186,9 @@ export default function Home() {
         />
       </div>
 
-
       {/* Scoreboard Overlay */}
-  {/* Scoreboard Overlay */}
-  {showEvent && <EventModal event={dummyevent} setShowEvent={setShowEvent} />}
-    <Scoreboard />
+      {showEvent && <EventModal event={dummyevent} setShowEvent={setShowEvent} />}
+      <Scoreboard />
       {/* QR Code Button */}
       <button
         onClick={() => router.push('/scan')}
