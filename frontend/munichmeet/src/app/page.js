@@ -19,10 +19,17 @@ export default function Home() {
   });
 
   async function getEvent() {
-    const res = await fetch('http://localhost:8000/api/getallevents');
-    console.log(await res);
+    const res = await fetch('http://localhost:8000/api/getallevents', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json', // Ensures compatibility with Flask-CORS
+      },
+    });
+    
+    const data = await res.json(); // Parse JSON response
     return data;
   }
+  
   useEffect(() => {
     // Fetch events and update state
     const fetchEvents = async () => {

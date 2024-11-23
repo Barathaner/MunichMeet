@@ -1,15 +1,14 @@
 #! /usr/bin/python3
 
 import math
-import backend.eventcreator as eventcreator
-
+from flask_cors import CORS
 from flask import Flask, send_from_directory, jsonify, request
 
 from module.user import User
 from module import event_generator
 
-eventcreator = Flask(__name__, static_folder='out/_next/static', template_folder='out')
-
+app = Flask(__name__, static_folder='out/_next/static', template_folder='out')
+CORS(app)
 all_users = {}
 all_events = {}
 
