@@ -105,6 +105,8 @@ def get_weather_data():
     rain = 0
     day_of_weather = datetime.datetime.today() if datetime.datetime.today().hour < 12 else (datetime.datetime.today() + datetime.timedelta(days=1))
 
+    print(weather_data.json())
+
     for i in range(len(weather_data.json()['list'])):
         timeslot += 1
         if('rain' in weather_data.json()['list'][i]):
@@ -155,9 +157,10 @@ def generate_event():
     return event
 
 # make all new events for the next 5 days
-def add_new_events(cur_planned_events: list):
-    for i in range(EVENTS_PER_5_DAYS):
-        cur_planned_events.add(generate_event())
+def add_new_events(cur_planned_events: dict):
+    for _ in range(EVENTS_PER_5_DAYS):
+        new_event = generate_event()
+        cur_planned_events.update({ new_event.eventid : new_event })
     
 
 dotenv.load_dotenv()
