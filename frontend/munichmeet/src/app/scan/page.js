@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import QRCode from 'qrcode';
 import { Scanner } from '@yudiel/react-qr-scanner';
+import Scoreboard from '../components/Scoreboard';
 import "./styles.css"; // Import the CSS file
 import { useRouter } from "next/navigation";
 
@@ -69,6 +70,7 @@ export default function Scan() {
         }}
       />
       <br />
+      <Scoreboard />
       <button
         onClick={generateQRCode}
         className="blue-rounded-button"

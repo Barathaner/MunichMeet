@@ -5,24 +5,65 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useUserPoints } from './context/context';
 import { useRouter } from "next/navigation";
+import EventModal from './components/EventModal';
+import Scoreboard from './components/Scoreboard';
 import QrReaderFeedback from './components/QrReaderFeedback';
 
 export default function Home() {
   const router = useRouter();
-  
+  const [showEvent, setShowEvent] = useState(true);
+  const [events, setEvents] = useState([]); // State to store events
+  const dummyevent = {title:"dddd",description:"iudshfiu",date:"12.92.23",location:"kasjdi"};
+
   const [userPosition, setUserPosition] = useState({
     lat: null,
     lng: null,
   });
+
+  async function getEvent() {
+    const res = await fetch('http://localhost:8000/api/getallevents', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json', // Ensures compatibility with Flask-CORS
+      },
+    });
+    
+    const data = await res.json(); // Parse JSON response
+    return data;
+  }
+  
+  useEffect(() => {
+    // Fetch events and update state
+    const fetchEvents = async () => {
+      try {
+        const data = await getEvent();
+        console.log(data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
+    fetchEvents();
+    console.log(events);
+  }, []); // Empty dependency array ensures it runs only once
   // Get the user points from the context
-  const { points, addPoints, resetPoints,name } = useUserPoints();
+  const { points, addPoints, resetPoints, name } = useUserPoints();
 
-
-  const handleswitchapage = () => {
-    router.push("/d");
-  };
-
-
+  function addUserMarker(map) {
+    // Create a custom HTML element for the marker
+    const el = document.createElement('div');
+    el.style.backgroundImage = `url('/usermarker.png')`; // Path to your custom icon
+    el.style.width = '70px'; // Set the width of the icon
+    el.style.height = '70px'; // Set the height of the icon
+    el.style.backgroundSize = 'contain'; // Ensure the icon fits within the bounds
+    el.style.backgroundRepeat = 'no-repeat'; // Prevent tiling
+    el.style.borderRadius = '50%'; // Optional: make it circular
+  
+    return new mapboxgl.Marker({ element: el })
+      .setLngLat([userPosition.lng, userPosition.lat])
+      .addTo(map);
+  }
+  
   function initializeMap() {
     if (userPosition.lat == null || userPosition.lng == null) {
       return new mapboxgl.Map({
@@ -53,7 +94,7 @@ export default function Home() {
 
 
     // Add marker for user's current position
-    const userMarker = addUserMarker(map, userPosition);
+    const userMarker = addUserMarker(map);
 
     // Simulate user movement
     const movementInterval = simulateUserMovement(
@@ -74,10 +115,6 @@ export default function Home() {
       {/* Map Container */}
       <div id="map" className="flex-1"></div>
 
-      {points} {name}
-      
-      <button onClick={() => addPoints(10)}>Add Points</button>
-      <button onClick={handleswitchapage}>switch page</button>
       {/* Logo Overlay */}
       <div className="absolute top-3 left-1/2 transform -translate-x-1/2 pointer-events-none z-50">
         <img
@@ -86,6 +123,24 @@ export default function Home() {
           className="w-24 h-24 object-contain rounded-full"
         />
       </div>
+
+
+      {/* Scoreboard Overlay */}
+  {/* Scoreboard Overlay */}
+  {showEvent && <EventModal event={dummyevent} setShowEvent={setShowEvent} />}
+    <Scoreboard />
+      {/* QR Code Button */}
+      <button
+        onClick={() => router.push('/scan')}
+        className="absolute bottom-2 right-4 z-50 w-16 h-16  p-0 bg-yellow-400 hover:opacity-25"
+        style={{ border: 'none', cursor: 'pointer' }}
+      >
+        <img
+          src="/qrcodebutton.png"
+          alt="QR Code Button"
+          className="w-full h-full object-contain"
+        />
+      </button>
 
       {/* QrReaderFeedback Overlay */}
       <QrReaderFeedback />
@@ -155,17 +210,6 @@ function initializeUserPosition(setUserPosition) {
   }
 }
 
-function addUserMarker(map, userPosition) {
-  return new mapboxgl.Marker({ color: 'blue' })
-    .setLngLat([userPosition.lng, userPosition.lat])
-    .setPopup(
-      new mapboxgl.Popup({ offset: 25 }).setHTML(
-        `<h3>Your Simulated Location</h3>
-         <p>Lat: ${userPosition.lat}, Lng: ${userPosition.lng}</p>`
-      )
-    )
-    .addTo(map);
-}
 
 function simulateUserMovement(userMarker, map, setUserPosition) {
   return setInterval(() => {

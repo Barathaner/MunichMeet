@@ -5,24 +5,9 @@ import os
 import requests
 import random
 
-
-class Place:
-    def __init__(self, name, lan, lon, img_url):
-        self.name = name
-        self.lan = lan
-        self.lon = lon
-        self.img_url = img_url
-
-    def __str__(self):
-        return f"{self.name},Coord({self.lan},{self.lon})"
-
-    def converttodict(self):
-        return {
-            "name": self.name,
-            "lan": self.lan,
-            "lon": self.lon,
-            "img_url": self.img_url,
-        }
+from module.planned_event import PlannedEvent
+from module.place import Place
+from module.event_preset import EventPreset
 
 
 # places:
@@ -75,25 +60,8 @@ ACTUAL_PLACES = {
 # the amount of events being spawned by add_new_events()
 EVENTS_PER_5_DAYS = 5
 
-cur_planned_events = []
 weather_forecast = []
 
-
-
-
-class EventPreset:
-    def __init__(self, name, placetypes, earliest_Time, latest_Time, usual_Length, lowest_temp, highest_precipitation, default_description):
-        self.name = name
-        self.placetypes = placetypes
-        self.earliest_Time = earliest_Time
-        self.latest_Time = latest_Time
-        self.usual_Length = usual_Length
-        self.lowest_temp = lowest_temp
-        self.highest_precipitation = highest_precipitation
-        self.default_description = default_description
-
-    def __str__(self):
-        return f"EventType({self.placetypes},{self.earliest_Time},{self.latest_Time},{self.usual_Length})"
     
     
 # All Event types with their stats
@@ -121,27 +89,7 @@ EVENTS = [
                 "Love books and great conversations? Come join this Reading & Discussion event, " +
                 "where book lovers gather to read, share ideas, and meet new people in a cozy, welcoming atmosphere"),]
 
-class PlannedEvent:
-    def __init__(self, name, place, date, duration, description, attendees):
-        self.name = name
-        self.place = place
-        self.date = date
-        self.duration = duration
-        self.description = description
-        self.attendees = attendees
 
-    def __str__(self):
-        return f"PlannedEvent({self.name},{self.place},{self.date},{self.duration}h)\n"
-    
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "place": self.place.__dict__,  # Assuming Place also needs serialization
-            "date": self.date.isoformat(),
-            "duration": self.duration,
-            "description": self.description,
-            "attendees": self.attendees,
-        }
 
 # return a random element of a list
 def choose_random(list):
@@ -207,43 +155,26 @@ def generate_event():
     return event
 
 # make all new events for the next 5 days
-def add_new_events():
+def add_new_events(all_events):
+    event_id = 1  # Assign unique IDs for events
     for i in range(EVENTS_PER_5_DAYS):
-        cur_planned_events.append(generate_event())
+        event = generate_event()
+        print(event)
+        all_events[event_id] = event.__dict__  # Serialize the PlannedEvent
+        event_id += 1
 
-
-def add_pitch_event():
-    global all_events
-    date = datetime.datetime(2024, 11, 24, 10, 15)
-    place = Place("Technical University Munich", 48.26252531823145, 11.668047677551074, 
-                  "https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg")
-    event = PlannedEvent(
-        "HackaTUM MunichMeet Pitch",
-        place,
-        date,
-        1,
-        "Feeling lonely in today’s busy world? You’re not alone — and we’re here to help. "
-        "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, "
-        "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
-        0
-    )
-    event_id = len(all_events) + 1  # Unique ID for the event
-    all_events[event_id] = event.to_dict()  # Serialize the PlannedEvent
-
-
-
-
+    
 
 dotenv.load_dotenv()
 weather_forecast = get_weather_data()
 
 
 # just a loop that keeps on producing different sets of planned_events every 5 seconds
-while True:
-    cur_planned_events = []
-    add_new_events()
-    print(' '.join(map(str, cur_planned_events)) + "\n")    
-    time.sleep(5)
+#while True:
+#    cur_planned_events = []
+#    add_new_events(cur_planned_events)
+#    print(' '.join(map(str, cur_planned_events)) + "\n")
+#    time.sleep(5)
 
 
  
