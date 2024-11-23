@@ -180,8 +180,7 @@ def generate_event():
     time = datetime.time(random.randint(event_preset.earliest_Time.hour,event_preset.latest_Time.hour-event_preset.usual_Length))
     suitable_date = datetime.datetime(suitable_date.year,suitable_date.month,suitable_date.day,time.hour)
 
-    event = PlannedEvent(next_ID,
-                         event_preset.name,
+    event = PlannedEvent(event_preset.name,
                          get_random_specific_place(choose_random(event_preset.placetypes)),
                          suitable_date,
                          event_preset.usual_Length,
