@@ -11,18 +11,29 @@ import QrReaderFeedback from './components/QrReaderFeedback';
 
 export default function Home() {
   const router = useRouter();
-  let map = null;
   const [showEvent, setShowEvent] = useState(true);
-
   const mapRef = useRef(null); // Reference for the map
+  const userMarkerRef = useRef(null); // Reference for the user marker
   const [events, setEvents] = useState([]); // State to store events
-  const dummyevent = { title: "dddd", description: "iudshfiu", date: "12.92.23", location: "kasjdi" };
-
   const [userPosition, setUserPosition] = useState({
     lat: null,
     lng: null,
   });
+  function initializeUserPosition() {
+    if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserPosition({ lat: latitude, lng: longitude });
 
+        },
+        (error) => console.error('Error retrieving location:', error),
+        { enableHighAccuracy: true }
+      );
+    } else {
+      console.error('Geolocation is not supported by this browser.');
+    }
+  }
   async function getEvent() {
     const res = await fetch('http://localhost:8000/api/getallevents', {
       method: 'GET',
@@ -49,7 +60,7 @@ export default function Home() {
 
     // Initial fetch and then set interval
     fetchEvents();
-    intervalId = setInterval(fetchEvents, 5000); // Run every 5 seconds
+    intervalId = setInterval(fetchEvents, 2000); // Run every 5 seconds
 
     // Cleanup the interval on unmount
     return () => {
@@ -59,7 +70,7 @@ export default function Home() {
   // Get the user points from the context
   const { points, addPoints, resetPoints, name ,showSuccess} = useUserPoints();
 
-  function addUserMarker(map) {
+  function addUserMarker() {
     // Create a custom HTML element for the marker
     const el = document.createElement('div');
     el.style.backgroundImage = `url('/usermarker.png')`; // Path to your custom icon
@@ -71,41 +82,39 @@ export default function Home() {
 
     return new mapboxgl.Marker({ element: el })
       .setLngLat([userPosition.lng, userPosition.lat])
-      .addTo(map);
+      .addTo(mapRef.current);
   }
 
-    function addEventMarker(event, map) {
-      // Create a custom HTML element for the marker
-      console.log(event);
-      if (event && map) {
-        console.log(event);
-        const el = document.createElement('div');
-        el.style.backgroundImage = `url('/usermarker.png')`; // Path to your custom icon
-        el.style.width = '70px'; // Set the width of the icon
-        el.style.height = '70px'; // Set the height of the icon
-        el.style.backgroundSize = 'contain'; // Ensure the icon fits within the bounds
-        el.style.backgroundRepeat = 'no-repeat'; // Prevent tiling
-        el.style.borderRadius = '50%'; // Optional: make it circular
-        // Create a popup with event information
-        const popupContent = `
-        <div style="text-align: center; color: black;">
-          <h3 style="margin-bottom: 5px; color: black;">${event.name}</h3>
-          <img src="${event.place.img_url}" alt="Event Image" style="width: 150px; height: auto; border-radius: 10px; margin-bottom: 10px;">
-          <p style="color: black;">${event.description}</p>
-          <p style="color: black;"><strong>Date:</strong> ${new Date(event.date).toLocaleString()}</p>
-          <p style="color: black;"><strong>Location:</strong> ${event.place.name}</p>
-        </div>
-        `;
+  function addEventMarker(event) {
+    if (!mapRef.current) return; // Ensure the map is initialized
 
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent);
-        return new mapboxgl.Marker({ element: el })
-          .setLngLat([event.place.lon, event.place.lat])
-          .setPopup(popup) // Associate the popup with the marker
+    console.log(event);
+    const el = document.createElement('div');
+    el.style.backgroundImage = `url('/usermarker.png')`;
+    el.style.width = '70px';
+    el.style.height = '70px';
+    el.style.backgroundSize = 'contain';
+    el.style.backgroundRepeat = 'no-repeat';
+    el.style.borderRadius = '50%';
 
-          .addTo(map);
-      }
+    // Create a popup with event information
+    const popupContent = `
+      <div style="text-align: center; color: black;">
+        <h3 style="margin-bottom: 5px; color: black;">${event.name}</h3>
+        <img src="${event.place.img_url}" alt="Event Image" style="width: 150px; height: auto; border-radius: 10px; margin-bottom: 10px;">
+        <p style="color: black;">${event.description}</p>
+        <p style="color: black;"><strong>Date:</strong> ${new Date(event.date).toLocaleString()}</p>
+        <p style="color: black;"><strong>Location:</strong> ${event.place.name}</p>
+      </div>
+    `;
 
-    }
+    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent);
+
+    new mapboxgl.Marker({ element: el })
+      .setLngLat([event.place.lon, event.place.lat])
+      .setPopup(popup)
+      .addTo(mapRef.current); // Add marker to the map
+  }
 
 
   async function initEvents() {
@@ -121,46 +130,70 @@ export default function Home() {
     // Initial fetch and then set interval
     fetchEvents();
   }
+  useEffect(() => {
+    let intervalId;
+
+    function updateUserMovement() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setUserPosition({ lat: latitude, lng: longitude }); // Correct use
+          },
+          (error) => console.error('Error retrieving location:', error),
+          { enableHighAccuracy: true }
+        );
+      }
+    }
+    
+
+    // Initial fetch and then set interval
+    updateUserMovement();
+    intervalId = setInterval(updateUserMovement, 1000); // Run every 5 seconds
+
+    // Cleanup the interval on unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []); // Empty dependency array ensures it runs only once on mount
+
+
 
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_API_KEY;
 
     // Get user's current location
-    initializeUserPosition(setUserPosition);
+    initializeUserPosition();
     initEvents()
+
     // Initialize the map
-    if (!mapRef.current) {
-      // Initialize the map
-      mapRef.current = new mapboxgl.Map({
-        container: 'map', // container ID
-        style: 'mapbox://styles/mapbox/dark-v11', // Mapbox style URL
-        center: [11.576124, 48.137154], // Default center (e.g., Munich)
-        zoom: 12,
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/dark-v11',
+      center: [11.576, 48.137], // Default center
+      zoom: 12,
+    });
+    map.on('style.load', () => add3DBuildingsLayer(map));
 
-      });
+    //add naviation control
+    map.addControl(new mapboxgl.NavigationControl());
+    map.on('load', () => {
+      mapRef.current = map; // Save the map instance
+
+      // Add event markers after the map is loaded
+      events.forEach(addEventMarker);
+      addUserMarker();
       // Add 3D buildings layer
-      mapRef.current.on('style.load', () => add3DBuildingsLayer(mapRef.current));
 
-      //add naviation control
-      mapRef.current.addControl(new mapboxgl.NavigationControl());
+    });
 
-
-      // Add marker for user's current position
-      const userMarker = addUserMarker(mapRef.current);
-      // Simulate user movement
-      const movementInterval = simulateUserMovement(
-        userMarker,
-        mapRef.current,
-        setUserPosition
-      );
-    }
 
 
 
     // Cleanup on unmount
     return () => {
-      clearInterval(movementInterval);
-      map.remove();
+      if (mapRef.current){
+        mapRef.current.remove();}
     };
   }, []);
 
@@ -174,6 +207,23 @@ export default function Home() {
       });
     }
   }, [events]);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      // Add user marker
+      if (userMarkerRef.current) {
+        userMarkerRef.current.remove(); // Remove the previous marker
+      }
+      userMarkerRef.current=addUserMarker();
+      if (!mapRef.current.isMoving()) {
+        mapRef.current.easeTo({
+          center: [userPosition.lng, userPosition.lat],
+          duration: 1000, // Smooth transition duration in milliseconds
+          easing: (t) => t, // Linear easing for a natural movement
+        });
+      }
+    }
+  }, [userPosition]);
   return (
     <div className="h-screen flex flex-col relative">
       {/* Map Container */}
@@ -189,7 +239,6 @@ export default function Home() {
       </div>
 
       {/* Scoreboard Overlay */}
-      {showEvent && <EventModal event={dummyevent} setShowEvent={setShowEvent} />}
       <Scoreboard />
       {/* QR Code Button */}
       <button
@@ -257,20 +306,7 @@ function add3DBuildingsLayer(map) {
   );
 }
 
-function initializeUserPosition(setUserPosition) {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setUserPosition({ lat: latitude, lng: longitude });
-      },
-      (error) => console.error('Error retrieving location:', error),
-      { enableHighAccuracy: true }
-    );
-  } else {
-    console.error('Geolocation is not supported by this browser.');
-  }
-}
+
 
 
 function simulateUserMovement(userMarker, map, setUserPosition) {
@@ -302,7 +338,7 @@ function simulateUserMovement(userMarker, map, setUserPosition) {
   }, 1000);
 }
 
-function updateUserMovement(userMarker, map, setUserPosition) {
+function updateUserMarkerMovement(userMarker, map, setUserPosition) {
   return setInterval(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
