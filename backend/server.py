@@ -100,7 +100,7 @@ def getotherusersinradius():
         distance = R * c
 
         if distance <= radius:
-            users_in_radius.update({ userid : user })
+            users_in_radius.update({ userid : user.__dict__ })
         
     return jsonify({ 'users' : users_in_radius }), 201
 

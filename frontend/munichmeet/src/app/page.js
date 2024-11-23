@@ -7,6 +7,8 @@ import { useUserPoints } from './context/context';
 import { useRouter } from "next/navigation";
 import EventModal from './components/EventModal';
 import Scoreboard from './components/Scoreboard';
+import QrReaderFeedback from './components/QrReaderFeedback';
+
 export default function Home() {
   const router = useRouter();
   const [showEvent, setShowEvent] = useState(true);
@@ -139,6 +141,10 @@ export default function Home() {
           className="w-full h-full object-contain"
         />
       </button>
+
+      {/* QrReaderFeedback Overlay */}
+      <QrReaderFeedback />
+
     </div>
   );
 
@@ -257,4 +263,3 @@ function updateUserMovement(userMarker, map, setUserPosition) {
     );
   }, 1000);
 }
-
