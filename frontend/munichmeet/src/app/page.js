@@ -99,9 +99,8 @@ export default function Home() {
 
 
       {/* Scoreboard Overlay */}
-      <div className="absolute transform pointer-events-none z-50">
-        <Scoreboard />
-      </div>
+  {/* Scoreboard Overlay */}
+    <Scoreboard />
       {/* QR Code Button */}
       <button
         onClick={() => router.push('/scan')}
