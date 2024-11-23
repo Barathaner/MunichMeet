@@ -1,14 +1,14 @@
 #! /usr/bin/python3
 
 import math
-
+from flask_cors import CORS
 from flask import Flask, send_from_directory, jsonify, request
 
 from module.user import User
 from module import event_generator
 
 app = Flask(__name__, static_folder='out/_next/static', template_folder='out')
-
+CORS(app)
 all_users = {}
 all_events = {}
 
@@ -28,11 +28,28 @@ def serve_other_static(path):
 
 
 # APIs
-
 @app.route('/api/getallevents', methods=['GET'])
 def getallevents():
-    global all_events
-    return jsonify({ 'events': all_events }), 200
+    def serialize_event(event):
+        return {
+            "eventid": event["eventid"],
+            "name": event["name"],
+            "place": {
+                "name": event["place"].name,
+                "lat": event["place"].lan,
+                "lon": event["place"].lon,
+                "img_url": event["place"].img_url,
+            },
+            "date": event["date"].isoformat(),
+            "duration": event["duration"],
+            "description": event["description"],
+            "attendees": event["attendees"],
+        }
+    
+    # Serialize all events
+    serialized_events = {key: serialize_event(event) for key, event in all_events.items()}
+    
+    return jsonify({'events': serialized_events}), 200
 
 
 @app.route('/api/participate', methods=['GET'])
@@ -129,7 +146,7 @@ def login_or_registrate_user():
 
 def main():
     event_generator.add_new_events(all_events)
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
 
 
 if __name__ == '__main__': main()
