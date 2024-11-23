@@ -10,8 +10,8 @@ from module import event_generator
 
 eventcreator = Flask(__name__, static_folder='out/_next/static', template_folder='out')
 
-all_users = set()
-all_events = set()
+all_users = {}
+all_events = {}
 
 @eventcreator.route('/')
 def home():
@@ -48,23 +48,12 @@ def participate():
         return jsonify({ 'status' : 'Error: Invalid arguments!' }), 400
     
 
-    event_to_participate = None
-    for event in all_events:
-        if event.eventid == eventid:
-            event_to_participate = event
-
-    if event_to_participate is None:
-        return jsonify({ 'status': f'Error: Event with eventid={eventid} does not exist!' }), 400
-    
-    
-    found_user = False
-    for user in all_users:
-        if user.userid == userid:
-            found_user = True        
-            event.attendees.append(user)
-        
-    if not found_user:
-        return jsonify({ 'status' : f'Error: User with userid={userid} does not exist!' }), 400
+    try:
+        all_events[eventid].attendees.append(all_users[userid])
+    except:
+        return jsonify({ 'status': f'Error: Event with eventid={eventid} or User with userid={userid} does not exist!' }), 400
+     
+    return jsonify({ 'status': f'Successfully registrated User with userid={userid} to Event with eventid={eventid}' })
 
 
 @eventcreator.route('/api/getotherusersinradius', methods=['POST'])
@@ -79,8 +68,8 @@ def getotherusersinradius():
 
     latitude_main_user, longitude_main_user = map(math.radians, [position['latitude'], position['longitude']])
 
-    users_in_radius = []
-    for user in all_users:
+    users_in_radius = {}
+    for userid, user in all_users.items():
         latitude_current_user, longitude_current_user = map(math.radians, user.latitude, user.longitude)
 
         dlat = latitude_current_user - latitude_main_user
@@ -93,7 +82,7 @@ def getotherusersinradius():
         distance = R * c
 
         if distance <= radius:
-            users_in_radius.add(user)
+            users_in_radius.update({ userid : user })
         
     return jsonify({ 'users' : users_in_radius }), 201
 
@@ -109,14 +98,10 @@ def updateuserpos():
     except:
         return jsonify({ 'status': 'Invalid arguments!' }), 400
 
-    found_user = False
-    for user in all_users:
-        if user.userid == userid:
-            found_user = True
-            user.latitude = latitude
-            user.longitude = longitude
-    
-    if not found_user:
+    try:
+        all_users[userid].latitude = latitude
+        all_users[userid].longitude = longitude
+    except:
         return jsonify({ 'status' : f'User with userid={userid} does not exist!' }), 400
 
 
@@ -131,17 +116,18 @@ def regenerate_all_events():
     return jsonify({ 'events': all_events }), 200
 
 
-@eventcreator.route('/api/registrateuser', methods=['POST'])
-def loginorregistrateuser():
-    userid = request.args.get('userid')
-    position = jsonify(request.args.get('position'))
-
-    if userid is None:
+@app.route('/api/registrateuser', methods=['POST'])
+def login_or_registrate_user():
+    try:
+        userid = request.args.get('userid')
+        position = jsonify(request.args.get('position'))
+        if userid is None: raise ValueError
+    except:
         new_user = User(position['latitude'], position['longitude'])
         userid = new_user.userid
-        all_users.add(new_user)
+        all_users.update({ userid : new_user })
     
-    return jsonify({ 'userid': userid }), 201
+    return jsonify({ 'user': userid }), 201
 
 
 

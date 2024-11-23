@@ -52,6 +52,9 @@ Now you should see a new directory, called "out". It contains the static website
 # Go back to the top of our repo
 cd ../..
 
+# Remove the "out" file from the backend if it already exists
+rm -rf backend/out
+
 # Move "out" directory into the backend
 mv frontend/munichmeet/out backend
 
