@@ -5,9 +5,11 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useUserPoints } from './context/context';
 import { useRouter } from "next/navigation";
+import EventModal from './components/EventModal';
 import Scoreboard from './components/Scoreboard';
 export default function Home() {
   const router = useRouter();
+  const [showEvent, setShowEvent] = useState(true);
 
   const [userPosition, setUserPosition] = useState({
     lat: null,
@@ -16,7 +18,7 @@ export default function Home() {
 
   // Get the user points from the context
   const { points, addPoints, resetPoints, name } = useUserPoints();
-
+  const dummyevent = {title:"dddd",description:"iudshfiu",date:"12.92.23",location:"kasjdi"};
 
   const handleswitchapage = () => {
     router.push("/d");
@@ -100,6 +102,7 @@ export default function Home() {
 
       {/* Scoreboard Overlay */}
   {/* Scoreboard Overlay */}
+  {showEvent && <EventModal event={dummyevent} setShowEvent={setShowEvent} />}
     <Scoreboard />
       {/* QR Code Button */}
       <button
