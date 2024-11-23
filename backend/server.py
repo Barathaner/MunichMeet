@@ -12,6 +12,22 @@ CORS(app)
 all_users = {}
 all_events = {}
 
+def serialize_event(event):
+    return {
+        "eventid": event["eventid"],
+        "name": event["name"],
+        "place": {
+            "name": event["place"].name,
+            "lat": event["place"].lan,
+            "lon": event["place"].lon,
+            "img_url": event["place"].img_url,
+        },
+        "date": event["date"].isoformat(),
+        "duration": event["duration"],
+        "description": event["description"],
+        "attendees": event["attendees"],
+    }
+
 @app.route('/')
 def home():
     return send_from_directory(app.template_folder, 'index.html')
@@ -30,22 +46,7 @@ def serve_other_static(path):
 # APIs
 @app.route('/api/getallevents', methods=['GET'])
 def getallevents():
-    def serialize_event(event):
-        return {
-            "eventid": event["eventid"],
-            "name": event["name"],
-            "place": {
-                "name": event["place"].name,
-                "lat": event["place"].lan,
-                "lon": event["place"].lon,
-                "img_url": event["place"].img_url,
-            },
-            "date": event["date"].isoformat(),
-            "duration": event["duration"],
-            "description": event["description"],
-            "attendees": event["attendees"],
-        }
-    
+   
     # Serialize all events
     serialized_events = {key: serialize_event(event) for key, event in all_events.items()}
     
@@ -95,7 +96,7 @@ def getotherusersinradius():
         distance = R * c
 
         if distance <= radius:
-            users_in_radius.update({ userid : user })
+            users_in_radius.update({ userid : user.__dict__ })
         
     return jsonify({ 'users' : users_in_radius }), 201
 
@@ -126,7 +127,7 @@ def regenerate_all_events():
     global all_events
     all_events.clear()
     event_generator.add_new_events(all_events)
-    return jsonify({ 'events': all_events }), 200
+    return jsonify({ 'events': {key : serialize_event(event) for key, event in all_events.items()} }), 200
 
 
 @app.route('/api/registrateuser', methods=['POST'])
@@ -140,7 +141,7 @@ def login_or_registrate_user():
         userid = new_user.userid
         all_users.update({ userid : new_user })
     
-    return jsonify({ 'user': userid }), 201
+    return jsonify({ 'user': new_user.__dict__ }), 201
 
 
 
