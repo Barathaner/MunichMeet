@@ -8,12 +8,10 @@ const person_photo = "https://img.freepik.com/premium-vector/little-kid-avatar-p
 const userPointsAwarded = 10;  
 
 export default function QrReaderFeedback() {
-    const { points, addPoints, resetPoints, name } = useUserPoints();
-    const [isOverlayVisible, setIsOverlayVisible] = useState(true); // State to toggle the overlay
+    const { points, addPoints, resetPoints, name,setShowSuccess } = useUserPoints();
 
     return (
-        isOverlayVisible && (
-            <div className="h-screen flex flex-col relative"
+                     <div className="h-screen flex flex-col relative"
                 style={{
                     position: 'absolute',
                     top: '50%',
@@ -54,7 +52,7 @@ export default function QrReaderFeedback() {
                     }}
                 >
                     <button
-                        onClick={() => setIsOverlayVisible(false)}
+                        onClick={() => setShowSuccess(false)}
                         style={{
                             position: 'absolute',
                             top: '10px',
@@ -158,6 +156,6 @@ export default function QrReaderFeedback() {
                     </div>
                 </div>
             </div>
-        )
+        
     );
 }

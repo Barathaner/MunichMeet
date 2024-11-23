@@ -5,8 +5,7 @@ import { Scanner } from '@yudiel/react-qr-scanner';
 import Scoreboard from '../components/Scoreboard';
 import "./styles.css"; // Import the CSS file
 import { useRouter } from "next/navigation";
-
-
+import { useUserPoints } from '../context/context';
 
 
 export default function Scan() {
@@ -14,6 +13,8 @@ export default function Scan() {
   // For showing QR code
   const [inputValue, setInputValue] = useState('https://thispersondoesnotexist.com/');
   const [qrCodeData, setQRCodeData] = useState('');
+  const userPointsAwarded = 10;  
+  const { points, addPoints, resetPoints, name,setShowSuccess } = useUserPoints();
 
   // For scanning QR code
   const [scanning, setScanning] = useState(false);
@@ -46,7 +47,8 @@ export default function Scan() {
     if (result?.[0]?.rawValue) {
       console.log(result[0].rawValue); // Log scanned value
       setData(result[0].rawValue); // Update scanned data
-      setShowScanner(false); // Close the scanner after successful scan
+      setShowSuccess(true); // Close the scanner after successful scan
+      addPoints(userPointsAwarded)
       // Go to the map view with the qr code successful read 
       router.push('/');
     }
