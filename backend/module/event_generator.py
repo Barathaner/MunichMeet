@@ -155,10 +155,14 @@ def generate_event():
     return event
 
 # make all new events for the next 5 days
-def add_new_events(cur_planned_events: dict):
-    for _ in range(EVENTS_PER_5_DAYS):
-        new_event = generate_event()
-        cur_planned_events.update({ new_event.eventid : new_event })
+def add_new_events(all_events):
+    event_id = 1  # Assign unique IDs for events
+    for i in range(EVENTS_PER_5_DAYS):
+        event = generate_event()
+        print(event)
+        all_events[event_id] = event.__dict__  # Serialize the PlannedEvent
+        event_id += 1
+
     
 
 dotenv.load_dotenv()

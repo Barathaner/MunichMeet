@@ -28,11 +28,28 @@ def serve_other_static(path):
 
 
 # APIs
-
 @app.route('/api/getallevents', methods=['GET'])
 def getallevents():
-    global all_events
-    return jsonify({ 'events': all_events }), 200
+    def serialize_event(event):
+        return {
+            "eventid": event["eventid"],
+            "name": event["name"],
+            "place": {
+                "name": event["place"].name,
+                "lat": event["place"].lan,
+                "lon": event["place"].lon,
+                "img_url": event["place"].img_url,
+            },
+            "date": event["date"].isoformat(),
+            "duration": event["duration"],
+            "description": event["description"],
+            "attendees": event["attendees"],
+        }
+    
+    # Serialize all events
+    serialized_events = {key: serialize_event(event) for key, event in all_events.items()}
+    
+    return jsonify({'events': serialized_events}), 200
 
 
 @app.route('/api/participate', methods=['GET'])

@@ -10,6 +10,8 @@ import Scoreboard from './components/Scoreboard';
 export default function Home() {
   const router = useRouter();
   const [showEvent, setShowEvent] = useState(true);
+  const [events, setEvents] = useState([]); // State to store events
+  const dummyevent = {title:"dddd",description:"iudshfiu",date:"12.92.23",location:"kasjdi"};
 
   const [userPosition, setUserPosition] = useState({
     lat: null,
@@ -17,11 +19,24 @@ export default function Home() {
   });
 
   async function getEvent() {
-    const res = await fetch('http://localhost:8000//api/getallevents');
-    const data = await res.json();
+    const res = await fetch('http://localhost:8000/api/getallevents');
+    console.log(await res);
     return data;
   }
+  useEffect(() => {
+    // Fetch events and update state
+    const fetchEvents = async () => {
+      try {
+        const data = await getEvent();
+        console.log(data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
 
+    fetchEvents();
+    console.log(events);
+  }, []); // Empty dependency array ensures it runs only once
   // Get the user points from the context
   const { points, addPoints, resetPoints, name } = useUserPoints();
 

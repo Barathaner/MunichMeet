@@ -16,6 +16,15 @@ class Place:
     def __str__(self):
         return f"{self.name},Coord({self.lan},{self.lon})"
 
+    def converttodict(self):
+        return {
+            "name": self.name,
+            "lan": self.lan,
+            "lon": self.lon,
+            "img_url": self.img_url,
+        }
+
+
 # places:
 PARK = "Park"
 WATER ="Water"
@@ -123,6 +132,16 @@ class PlannedEvent:
 
     def __str__(self):
         return f"PlannedEvent({self.name},{self.place},{self.date},{self.duration}h)\n"
+    
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "place": self.place.__dict__,  # Assuming Place also needs serialization
+            "date": self.date.isoformat(),
+            "duration": self.duration,
+            "description": self.description,
+            "attendees": self.attendees,
+        }
 
 # return a random element of a list
 def choose_random(list):
@@ -194,17 +213,23 @@ def add_new_events():
 
 
 def add_pitch_event():
-    date = datetime.datetime(2024,11,24,10,15)
-    place = Place("Technical University Munich",48.26252531823145, 11.668047677551074,"https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg")
-    event = PlannedEvent("HackaTUM MunichMeet Pitch",
-                         place,
-                         date,
-                         1,
-                         "Feeling lonely in today’s busy world? You’re not alone — and we’re here to help. "+
-                         "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, " +
-                         "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
-                         0)
-    cur_planned_events.append(event)
+    global all_events
+    date = datetime.datetime(2024, 11, 24, 10, 15)
+    place = Place("Technical University Munich", 48.26252531823145, 11.668047677551074, 
+                  "https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg")
+    event = PlannedEvent(
+        "HackaTUM MunichMeet Pitch",
+        place,
+        date,
+        1,
+        "Feeling lonely in today’s busy world? You’re not alone — and we’re here to help. "
+        "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, "
+        "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
+        0
+    )
+    event_id = len(all_events) + 1  # Unique ID for the event
+    all_events[event_id] = event.to_dict()  # Serialize the PlannedEvent
+
 
 
 
