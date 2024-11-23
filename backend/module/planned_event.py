@@ -5,7 +5,7 @@ from module.place import Place
 
 class PlannedEvent:
     next_event_id = 0
-    def __init__(self, name: str, place: Place, date: datetime.datetime, duration: int, description: str, attendees: list):
+    def __init__(self, name: str, place: Place, date: datetime.datetime, duration: int, description: str, attendees: int):
         self.eventid = PlannedEvent.next_event_id
         self.name = name
         self.place = place
@@ -16,8 +16,8 @@ class PlannedEvent:
 
         PlannedEvent.next_event_id += 1
 
-    def add_attendee(self, attendee: User) -> None:
-        self.attendees.append(attendee)
+    def inc_attendee(self) -> None:
+        self.attendees += 1
 
     def __str__(self):
         return f"PlannedEvent({self.name},{self.place},{self.date},{self.duration}h)\n"

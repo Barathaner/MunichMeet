@@ -1,10 +1,12 @@
 "use client";
 import { useState } from 'react';
 import QRCode from 'qrcode';
-import dynamic from 'next/dynamic';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import Scoreboard from '../components/Scoreboard';
 import "./styles.css"; // Import the CSS file
+import { useRouter } from "next/navigation";
+
+
 
 
 export default function Scan() {
@@ -18,6 +20,7 @@ export default function Scan() {
   const [scanResult, setScanResult] = useState('');
   const [data, setData] = useState('No result');
   const [showScanner, setShowScanner] = useState(false); // Control scanner visibility
+  const router = useRouter();
   
   const handleScan = (data) => {
     if (data) {
@@ -44,6 +47,8 @@ export default function Scan() {
       console.log(result[0].rawValue); // Log scanned value
       setData(result[0].rawValue); // Update scanned data
       setShowScanner(false); // Close the scanner after successful scan
+      // Go to the map view with the qr code successful read 
+      router.push('/');
     }
   };
 

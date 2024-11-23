@@ -16,15 +16,6 @@ class Place:
     def __str__(self):
         return f"{self.name},Coord({self.lan},{self.lon})"
 
-    def converttodict(self):
-        return {
-            "name": self.name,
-            "lan": self.lan,
-            "lon": self.lon,
-            "img_url": self.img_url,
-        }
-
-
 # places:
 PARK = "Park"
 WATER ="Water"
@@ -73,7 +64,8 @@ ACTUAL_PLACES = {
 }
 
 # the amount of events being spawned by add_new_events()
-EVENTS_PER_5_DAYS = 5
+EVENTS_PER_5_DAYS = 20
+next_ID = 0
 
 cur_planned_events = []
 weather_forecast = []
@@ -132,16 +124,6 @@ class PlannedEvent:
 
     def __str__(self):
         return f"PlannedEvent({self.name},{self.place},{self.date},{self.duration}h)\n"
-    
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "place": self.place.__dict__,  # Assuming Place also needs serialization
-            "date": self.date.isoformat(),
-            "duration": self.duration,
-            "description": self.description,
-            "attendees": self.attendees,
-        }
 
 # return a random element of a list
 def choose_random(list):
@@ -204,6 +186,7 @@ def generate_event():
                          event_preset.usual_Length,
                          event_preset.default_description,
                          0)
+    next_ID += 1
     return event
 
 # make all new events for the next 5 days
@@ -213,23 +196,19 @@ def add_new_events():
 
 
 def add_pitch_event():
-    global all_events
-    date = datetime.datetime(2024, 11, 24, 10, 15)
-    place = Place("Technical University Munich", 48.26252531823145, 11.668047677551074, 
-                  "https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg")
-    event = PlannedEvent(
-        "HackaTUM MunichMeet Pitch",
-        place,
-        date,
-        1,
-        "Feeling lonely in today’s busy world? You’re not alone — and we’re here to help. "
-        "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, "
-        "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
-        0
-    )
-    event_id = len(all_events) + 1  # Unique ID for the event
-    all_events[event_id] = event.to_dict()  # Serialize the PlannedEvent
-
+    date = datetime.datetime(2024,11,24,10,15)
+    place = Place("Technical University Munich",48.26252531823145, 11.668047677551074,"https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg")
+    event = PlannedEvent(next_ID, 
+                         "HackaTUM MunichMeet Pitch",
+                         place,
+                         date,
+                         1,
+                         "Feeling lonely in today’s busy world? You’re not alone — and we’re here to help. "+
+                         "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, " +
+                         "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
+                         0)
+    next_ID += 1
+    cur_planned_events.append(event)
 
 
 
@@ -239,11 +218,11 @@ weather_forecast = get_weather_data()
 
 
 # just a loop that keeps on producing different sets of planned_events every 5 seconds
-while True:
-    cur_planned_events = []
-    add_new_events()
-    print(' '.join(map(str, cur_planned_events)) + "\n")    
-    time.sleep(5)
+#while True:
+ #   cur_planned_events = []
+  #  add_new_events()
+   # print(' '.join(map(str, cur_planned_events)) + "\n")    
+    #time.sleep(5)
 
 
  
