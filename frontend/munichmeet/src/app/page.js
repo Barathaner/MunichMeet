@@ -12,6 +12,7 @@ export default function Home() {
     lat: null,
     lng: null,
   });
+  
   // Get the user points from the context
   const { points, addPoints, resetPoints,name } = useUserPoints();
 
@@ -71,11 +72,12 @@ export default function Home() {
     <div className="h-screen flex flex-col relative">
       {/* Map Container */}
       <div id="map" className="flex-1"></div>
-
-      {points} {name}
+{true &&<> {points} {name}      <button onClick={() => addPoints(10)}>Add Points</button>
+<button onClick={handleswitchapage}>switch page</button>
+</>
+     }
       
-      <button onClick={() => addPoints(10)}>Add Points</button>
-      <button onClick={handleswitchapage}>switch page</button>
+
       {/* Logo Overlay */}
       <div className="absolute top-3 left-1/2 transform -translate-x-1/2 pointer-events-none z-50">
         <img
@@ -150,7 +152,16 @@ function initializeUserPosition(setUserPosition) {
 }
 
 function addUserMarker(map, userPosition) {
-  return new mapboxgl.Marker({ color: 'blue' })
+  // Create a custom HTML element for the marker
+  const el = document.createElement('div');
+  el.style.backgroundImage = `url('/usermarker.png')`; // Path to your custom icon
+  el.style.width = '70px'; // Set the width of the icon
+  el.style.height = '70px'; // Set the height of the icon
+  el.style.backgroundSize = 'contain'; // Ensure the icon fits within the bounds
+  el.style.backgroundRepeat = 'no-repeat'; // Prevent tiling
+  el.style.borderRadius = '50%'; // Optional: make it circular
+
+  return new mapboxgl.Marker({ element: el })
     .setLngLat([userPosition.lng, userPosition.lat])
     .setPopup(
       new mapboxgl.Popup({ offset: 25 }).setHTML(
