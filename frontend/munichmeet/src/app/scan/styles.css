@@ -1,0 +1,16 @@
+.blue-rounded-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    background-color: #007BFF; /* Blue background */
+    color: #fff; /* White text */
+    border: none; /* No border */
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    transition: background-color 0.3s ease; /* Smooth hover transition */
+  }
+  
+  .blue-rounded-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }

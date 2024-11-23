@@ -2,19 +2,22 @@
 import { useState } from 'react';
 import QRCode from 'qrcode';
 import dynamic from 'next/dynamic';
+import { Scanner } from '@yudiel/react-qr-scanner';
+import "./styles.css"; // Import the CSS file
 
-const QrReader = dynamic(() => import('react-qr-reader'), { ssr: false });
 
 export default function Scan() {
   const [message, setMessage] = useState('');
   // For showing QR code
-  const [inputValue, setInputValue] = useState('https://www.wikipedia.org/');
+  const [inputValue, setInputValue] = useState('https://thispersondoesnotexist.com/');
   const [qrCodeData, setQRCodeData] = useState('');
 
   // For scanning QR code
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState('');
-
+  const [data, setData] = useState('No result');
+  const [showScanner, setShowScanner] = useState(false); // Control scanner visibility
+  
   const handleScan = (data) => {
     if (data) {
       setScanResult(data);
@@ -35,12 +38,11 @@ export default function Scan() {
     }
   };
 
-  const scanQRcode = async () => {
-    try {
-      const qrCode = await QRCode.toDataURL(inputValue || 'Default QR Code');
-      setQRCodeData(qrCode);
-    } catch (error) {
-      console.error('Error generating QR Code:', error);
+  const handleQRScan = (result) => {
+    if (result?.[0]?.rawValue) {
+      console.log(result[0].rawValue); // Log scanned value
+      setData(result[0].rawValue); // Update scanned data
+      setShowScanner(false); // Close the scanner after successful scan
     }
   };
 
@@ -64,11 +66,7 @@ export default function Scan() {
       <br />
       <button
         onClick={generateQRCode}
-        style={{
-          padding: '10px 20px',
-          fontSize: '16px',
-          cursor: 'pointer',
-        }}
+        className="blue-rounded-button"
       >
         Generate QR Code
       </button>
@@ -81,48 +79,22 @@ export default function Scan() {
         )}
       </div>
       <button
-        onClick={handleScan}
-        style={{
-          padding: '10px 20px',
-          fontSize: '16px',
-          cursor: 'pointer',
-        }}
+        onClick={() => setShowScanner(true)}
+        className="blue-rounded-button"
       >
-        Scan QR Code
+        Start Scanning
       </button>
+      <p>Scanned Result: {data}</p>
+
+      {showScanner && (
+        <Scanner
+          onScan={handleQRScan}
+          onError={(error) => console.error("Error scanning QR code:", error)}
+          containerStyle={{ width: "100%", maxWidth: "500px", margin: "0 auto" }}
+        />
+      )}
     </div>
   );
-
-  // return (
-  //   <div style={{ textAlign: 'center', marginTop: '50px' }}>
-  //     <h1>Welcome to My Next.js App</h1>
-  //     <div>
-  //       <button
-  //         style={{
-  //           padding: '10px 20px',
-  //           margin: '10px',
-  //           fontSize: '16px',
-  //           cursor: 'pointer',
-  //         }}
-  //         onClick={() => showQRcode()}
-  //       >
-  //         Show QR code
-  //       </button>
-  //       <button
-  //         style={{
-  //           padding: '10px 20px',
-  //           margin: '10px',
-  //           fontSize: '16px',
-  //           cursor: 'pointer',
-  //         }}
-  //         onClick={() => handleClick(2)}
-  //       >
-  //         Scan QR code
-  //       </button>
-  //     </div>
-  //     {message && <p style={{ marginTop: '20px', fontSize: '18px' }}>{message}</p>}
-  //   </div>
-  // );
 }
 
 
