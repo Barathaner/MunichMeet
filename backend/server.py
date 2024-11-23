@@ -1,41 +1,45 @@
 #! /usr/bin/python3
 
 import math
+import backend.eventcreator as eventcreator
 
 from flask import Flask, send_from_directory, jsonify, request
 
 from module.user import User
 from module import event_generator
 
-app = Flask(__name__, static_folder='out/_next/static', template_folder='out')
+eventcreator = Flask(__name__, static_folder='out/_next/static', template_folder='out')
 
 all_users = set()
 all_events = set()
 
-@app.route('/')
+@eventcreator.route('/')
 def home():
-    return send_from_directory(app.template_folder, 'index.html')
+    return send_from_directory(eventcreator.template_folder, 'index.html')
 
 
-@app.route('/_next/static<path:path>')
+@eventcreator.route('/_next/static<path:path>')
 def serve_static(path):
     return send_from_directory('out/_next/static', path)
 
 
-@app.route('/<path:path>')
+@eventcreator.route('/<path:path>')
 def serve_other_static(path):
     return send_from_directory('out', path)
 
 
 # APIs
 
-@app.route('/api/getallevents', methods=['GET'])
+@eventcreator.route('/api/getallevents', methods=['GET'])
 def getallevents():
     global all_events
+    if(len(all_events) == 0):
+        
+        all_events = eventcreator.cur_planned_events
     return jsonify({ 'events': all_events }), 200
 
 
-@app.route('/api/participate', methods=['GET'])
+@eventcreator.route('/api/participate', methods=['GET'])
 def participate():
     try:
         userid = int(request.args.get('userid'))
@@ -63,7 +67,7 @@ def participate():
         return jsonify({ 'status' : f'Error: User with userid={userid} does not exist!' }), 400
 
 
-@app.route('/api/getotherusersinradius', methods=['POST'])
+@eventcreator.route('/api/getotherusersinradius', methods=['POST'])
 def getotherusersinradius():
     R = 6_371_000  # Earth's radius in meters
 
@@ -94,7 +98,7 @@ def getotherusersinradius():
     return jsonify({ 'users' : users_in_radius }), 201
 
 
-@app.route('/api/updateuserpos', methods=['POST'])
+@eventcreator.route('/api/updateuserpos', methods=['POST'])
 def updateuserpos():
     try:
         new_position = jsonify(request.args.get('position'))
@@ -119,7 +123,7 @@ def updateuserpos():
     return jsonify({ 'status': 'Position updated successfully!' }), 201
 
 
-@app.route('/api/regenerate_all_events', methods=['GET'])
+@eventcreator.route('/api/regenerate_all_events', methods=['GET'])
 def regenerate_all_events():
     global all_events
     all_events.clear()
@@ -127,7 +131,7 @@ def regenerate_all_events():
     return jsonify({ 'events': all_events }), 200
 
 
-@app.route('/api/registrateuser', methods=['POST'])
+@eventcreator.route('/api/registrateuser', methods=['POST'])
 def loginorregistrateuser():
     userid = request.args.get('userid')
     position = jsonify(request.args.get('position'))
@@ -143,7 +147,7 @@ def loginorregistrateuser():
 
 def main():
     event_generator.add_new_events(all_events)
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    eventcreator.run(host='0.0.0.0', port=3000, debug=True)
 
 
 if __name__ == '__main__': main()

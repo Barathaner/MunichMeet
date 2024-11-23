@@ -64,7 +64,8 @@ ACTUAL_PLACES = {
 }
 
 # the amount of events being spawned by add_new_events()
-EVENTS_PER_5_DAYS = 5
+EVENTS_PER_5_DAYS = 20
+next_ID = 0
 
 cur_planned_events = []
 weather_forecast = []
@@ -113,7 +114,8 @@ EVENTS = [
                 "where book lovers gather to read, share ideas, and meet new people in a cozy, welcoming atmosphere"),]
 
 class PlannedEvent:
-    def __init__(self, name, place, date, duration, description, attendees):
+    def __init__(self, eventID, name, place, date, duration, description, attendees):
+        self.eventID = eventID
         self.name = name
         self.place = place
         self.date = date
@@ -179,12 +181,14 @@ def generate_event():
     time = datetime.time(random.randint(event_preset.earliest_Time.hour,event_preset.latest_Time.hour-event_preset.usual_Length))
     suitable_date = datetime.datetime(suitable_date.year,suitable_date.month,suitable_date.day,time.hour)
 
-    event = PlannedEvent(event_preset.name,
+    event = PlannedEvent(next_ID,
+                         event_preset.name,
                          get_random_specific_place(choose_random(event_preset.placetypes)),
                          suitable_date,
                          event_preset.usual_Length,
                          event_preset.default_description,
                          0)
+    next_ID += 1
     return event
 
 # make all new events for the next 5 days
@@ -196,7 +200,8 @@ def add_new_events():
 def add_pitch_event():
     date = datetime.datetime(2024,11,24,10,15)
     place = Place("Technical University Munich",48.26252531823145, 11.668047677551074,"https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg")
-    event = PlannedEvent("HackaTUM MunichMeet Pitch",
+    event = PlannedEvent(next_ID, 
+                         "HackaTUM MunichMeet Pitch",
                          place,
                          date,
                          1,
@@ -204,6 +209,7 @@ def add_pitch_event():
                          "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, " +
                          "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
                          0)
+    next_ID += 1
     cur_planned_events.append(event)
 
 
@@ -214,11 +220,11 @@ weather_forecast = get_weather_data()
 
 
 # just a loop that keeps on producing different sets of planned_events every 5 seconds
-while True:
-    cur_planned_events = []
-    add_new_events()
-    print(' '.join(map(str, cur_planned_events)) + "\n")    
-    time.sleep(5)
+#while True:
+ #   cur_planned_events = []
+  #  add_new_events()
+   # print(' '.join(map(str, cur_planned_events)) + "\n")    
+    #time.sleep(5)
 
 
  
