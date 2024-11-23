@@ -7,10 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export" : "next export"
+    "export": "next export"
   },
   "dependencies": {
     "@yudiel/react-qr-scanner": "^2.0.8",
+    "mapbox-gl": "^3.8.0",
     "next": "15.0.3",
     "qrcode": "^1.5.4",
     "react": "^18.2.0",
@@ -19,10 +20,7 @@
   "devDependencies": {
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
-    "eslint": "^8",
-    "eslint-config-next": "15.0.3",
     "postcss": "^8",
-    "tailwindcss": "^3.4.1"
     "tailwindcss": "^3.4.1"
   }
 }
