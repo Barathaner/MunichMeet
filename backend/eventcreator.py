@@ -114,8 +114,7 @@ EVENTS = [
                 "where book lovers gather to read, share ideas, and meet new people in a cozy, welcoming atmosphere"),]
 
 class PlannedEvent:
-    def __init__(self, eventID, name, place, date, duration, description, attendees):
-        self.eventID = eventID
+    def __init__(self, name, place, date, duration, description, attendees):
         self.name = name
         self.place = place
         self.date = date
