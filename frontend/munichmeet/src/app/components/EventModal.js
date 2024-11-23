@@ -13,5 +13,6 @@ export default function EventModal({ event, onClose }) {
         <p className="text-gray-700">{event.description}</p>
         </div>
         </div>
+        
     );
     }
