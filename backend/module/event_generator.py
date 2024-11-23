@@ -105,8 +105,6 @@ def get_weather_data():
     rain = 0
     day_of_weather = datetime.datetime.today() if datetime.datetime.today().hour < 12 else (datetime.datetime.today() + datetime.timedelta(days=1))
 
-    print(weather_data.json())
-
     for i in range(len(weather_data.json()['list'])):
         timeslot += 1
         if('rain' in weather_data.json()['list'][i]):
