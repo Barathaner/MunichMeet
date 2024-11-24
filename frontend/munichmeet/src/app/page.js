@@ -341,10 +341,10 @@ const fetchhackatumevent = async () => {
 
     const data = await res.json(); // Parse JSON response
 
-    // Assuming the event is being displayed as a marker
-    if (data.event && mapRef.current) {
-      addEventMarker(data.event);
-    }
+    // // Assuming the event is being displayed as a marker
+    // if (data.event && mapRef.current) {
+    //   addEventMarker(data.event);
+    // }
   } catch (error) {
     console.error('Failed to fetch hackatum event:', error);
   }

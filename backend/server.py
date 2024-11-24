@@ -59,26 +59,27 @@ def getallevents():
 #gethackatumevent
 @app.route('/api/gethackatumevent', methods=['GET'])
 def gethackatumevent():
-    try:
-        event ={
-            "eventid": "coolhackatumevent",
-            "name": "HackaTUM MunichMeet Pitch",
-            "place": {
-                "name": "Technical University Munich",
-                "lat": 48.26252531823145,
-                "lon": 11.668047677551074,
-                "img_url": "https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg",
-            },
-            "date": "2024,11,24,10,15",
-            "duration": 1,
-            "description":  "Feeling lonely in today’s busy world? You’re not alone — and we’re here to help. "+
-                         "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, " +
-                         "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
-            "attendees": 0,
-        }
-    except:
-        return jsonify({ 'status': 'Error: Event with eventid=0 does not exist!' }), 400
-    return jsonify({'event': event}), 200
+        event_generator.add_pitch_event(all_events)
+        return jsonify({'event': "halo"}),200
+        # event ={
+        #     "eventid": "coolhackatumevent",
+        #     "name": "HackaTUM MunichMeet Pitch",
+        #     "place": {
+        #         "name": "Technical University Munich",
+        #         "lat": 48.26252531823145,
+        #         "lon": 11.668047677551074,
+        #         "img_url": "https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg",
+        #     },
+        #     "date": "2024,11,24,10,15",
+        #     "duration": 1,
+        #     "description":  "Feeling lonely in today’s busy world? You’re not alone — and we’re here to help. "+
+        #                  "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, " +
+        #                  "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
+        #     "attendees": 0,
+        # }
+    # except:
+    #     return jsonify({ 'status': 'Error: Event with eventid=0 does not exist!' }), 400
+
     
 @app.route('/api/participate', methods=['GET'])
 def participate():

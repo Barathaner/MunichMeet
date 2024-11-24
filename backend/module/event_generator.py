@@ -161,6 +161,20 @@ def add_new_events(all_events):
         print(event)
         all_events[event.eventid] = event  # Serialize the PlannedEvent
 
+def add_pitch_event(all_events):
+    print(all_events)
+    date = datetime.datetime(2024,11,24,10,15)
+    place = Place("Technical University Munich",48.26252531823145, 11.668047677551074,"https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg")
+    event = PlannedEvent(
+                         "HackaTUM MunichMeet Pitch",
+                         place,
+                         date,
+                         1,
+                         "Feeling lonely in today’s busy world? You’re not alone — and we’re here to help. "+
+                         "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, " +
+                         "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
+                         0)
+    all_events[event.eventid] = event
     
 
 dotenv.load_dotenv()
