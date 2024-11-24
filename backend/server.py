@@ -3,7 +3,7 @@
 import math
 from flask_cors import CORS
 from flask import Flask, send_from_directory, jsonify, request
-
+from eventcreator import add_pitch_event
 from module.user import User
 from module import event_generator
 
@@ -11,7 +11,7 @@ app = Flask(__name__, static_folder='out/_next/static', template_folder='out')
 CORS(app)
 all_users = {"test":User(48.2624566, 11.6672299)}
 all_events = {}
-
+pitchevent = None
 
 def serialize_event(event):
         return {
@@ -56,6 +56,30 @@ def getallevents():
     return jsonify({'events': serialized_events}), 200
 
 
+#gethackatumevent
+@app.route('/api/gethackatumevent', methods=['GET'])
+def gethackatumevent():
+    try:
+        event ={
+            "eventid": "coolhackatumevent",
+            "name": "HackaTUM MunichMeet Pitch",
+            "place": {
+                "name": "Technical University Munich",
+                "lat": 48.26252531823145,
+                "lon": 11.668047677551074,
+                "img_url": "https://strohtum.de/media/2022_08/csm_2006_1015Bild0136_4386718267.jpg",
+            },
+            "date": "2024,11,24,10,15",
+            "duration": 1,
+            "description":  "Feeling lonely in today’s busy world? You’re not alone — and we’re here to help. "+
+                         "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, " +
+                         "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
+            "attendees": 0,
+        }
+    except:
+        return jsonify({ 'status': 'Error: Event with eventid=0 does not exist!' }), 400
+    return jsonify({'event': event}), 200
+    
 @app.route('/api/participate', methods=['GET'])
 def participate():
     try:

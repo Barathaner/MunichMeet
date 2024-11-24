@@ -16,6 +16,7 @@ export default function Home() {
   const userMarkerRef = useRef(null); // Reference for the user marker
   const [events, setEvents] = useState([]); // State to store events
   const nearbyMarkersRef = useRef({}); // Reference to manage nearby user markers
+  const hackatumeventRef = useRef(null); // Reference to manage nearby user markers
 
   const [userPosition, setUserPosition] = useState({
     lat: null,
@@ -59,7 +60,6 @@ useEffect(() => {
     if (!userPosition.lat || !userPosition.lng || !name) return; // Exit early if parameters are invalid
 
     try {
-      console.log(name);
       const radius = 500; // Radius in meters
 
       const requestBody = {
@@ -78,7 +78,6 @@ useEffect(() => {
       });
 
       const data = await res.json();
-      console.log(data);
       if (res.ok) {
         setNearbyUsers(Object.values(data.users)); // Update the nearbyUsers state
       } else {
@@ -141,9 +140,11 @@ useEffect(() => {
 
   function addEventMarker(event) {
     if (!mapRef.current) return; // Ensure the map is initialized
-
+    let url = '/usermarker.png';
+    if (event.name =='HackaTUM MunichMeet Pitch')
+      url = '/minga.jpg';
     const el = document.createElement('div');
-    el.style.backgroundImage = `url('/usermarker.png')`;
+    el.style.backgroundImage = `url(${url})`; // Path to event icon
     el.style.width = '70px';
     el.style.height = '70px';
     el.style.backgroundSize = 'contain';
@@ -328,7 +329,26 @@ useEffect(() => {
       });
     }
   }, [events]);
+// Define fetchhackatumevent as a const inside the component
+const fetchhackatumevent = async () => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/gethackatumevent`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json', // Ensures compatibility with Flask-CORS
+      },
+    });
 
+    const data = await res.json(); // Parse JSON response
+
+    // Assuming the event is being displayed as a marker
+    if (data.event && mapRef.current) {
+      addEventMarker(data.event);
+    }
+  } catch (error) {
+    console.error('Failed to fetch hackatum event:', error);
+  }
+};
   useEffect(() => {
     if (mapRef.current) {
       // Add user marker
@@ -374,8 +394,18 @@ useEffect(() => {
         />
       </button>
 
-      {/* QrReaderFeedback Overlay */}
-      {showSuccess && <QrReaderFeedback />}
+      <button
+  onClick={fetchhackatumevent} // Invoke the function properly
+  className="absolute top-5 right-4 z-50 w-8 h-8 pt-3 opacity-20 hover:opacity-25"
+  style={{ border: 'none', cursor: 'pointer' }}
+>
+  <img
+    src="/qrcodebutton.png"
+    alt="QR Code Button"
+    className="w-full h-full object-contain"
+  />
+</button>
+
 
     </div>
   );

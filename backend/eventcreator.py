@@ -207,8 +207,7 @@ def add_pitch_event():
                          "Come watch the pitch of MunichMeet, designed to make meaningful connections easier, " +
                          "whether you’re looking for friends, a supportive community, or just someone to talk to, we're here for you!",
                          0)
-    next_ID += 1
-    cur_planned_events.append(event)
+    return event
 
 
 
