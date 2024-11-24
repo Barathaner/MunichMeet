@@ -209,6 +209,7 @@ def add_pitch_event():
                          0)
     next_ID += 1
     cur_planned_events.append(event)
+    return event
 
 
 

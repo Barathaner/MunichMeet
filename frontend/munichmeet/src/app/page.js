@@ -13,14 +13,19 @@ import QrCodeButton from './components/QrCodeButton';
 
 export default function Home() {
   const router = useRouter();
-  const [showEvent, setShowEvent] = useState(true);
   const mapRef = useRef(null); // Reference for the map
   const userMarkerRef = useRef(null); // Reference for the user marker
   const [events, setEvents] = useState([]); // State to store events
+  const nearbyMarkersRef = useRef({}); // Reference to manage nearby user markers
+  const [curEvent, setEvent] = useState(null);
+  const hackatumeventRef = useRef(null); // Reference to manage nearby user markers
+
   const [userPosition, setUserPosition] = useState({
     lat: null,
     lng: null,
   });
+  const [nearbyUsers, setNearbyUsers] = useState([]); // State to store nearby users
+
   function initializeUserPosition() {
     if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -37,7 +42,7 @@ export default function Home() {
     }
   }
   async function getEvent() {
-    const res = await fetch('http://localhost:8000/api/getallevents', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/getallevents`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json', // Ensures compatibility with Flask-CORS
@@ -47,6 +52,54 @@ export default function Home() {
     const data = await res.json(); // Parse JSON response
     return data;
   }
+
+  
+// Fetch nearby users every 2 seconds
+useEffect(() => {
+  let intervalId;
+
+  const fetchNearbyUsers = async () => {
+    if (!userPosition.lat || !userPosition.lng || !name) return; // Exit early if parameters are invalid
+
+    try {
+      const radius = 30; // Radius in meters
+
+      const requestBody = {
+        lat: userPosition.lat,
+        lon: userPosition.lng,
+        radius: radius,
+        userid: name, // Add current user's ID
+      };
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/getotherusersinradius`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setNearbyUsers(Object.values(data.users)); // Update the nearbyUsers state
+      } else {
+        console.error('Error fetching nearby users:', data.status);
+      }
+    } catch (error) {
+      console.error('Failed to fetch nearby users:', error);
+    }
+  };
+
+  fetchNearbyUsers(); // Fetch immediately on mount
+  intervalId = setInterval(fetchNearbyUsers, 2000); // Fetch every 2 seconds
+
+  return () => {
+    clearInterval(intervalId); // Cleanup on unmount
+  };
+}, [userPosition]);
+
+
+
   useEffect(() => {
     let intervalId;
 
@@ -70,7 +123,7 @@ export default function Home() {
     };
   }, []); // Empty dependency array ensures it runs only once on mount
   // Get the user points from the context
-  const { points, addPoints, resetPoints, name ,showSuccess} = useUserPoints();
+  const { points, addPoints, resetPoints, name ,showSuccess, setName, showEvent,setShowEvent} = useUserPoints();
 
   function addUserMarker() {
     // Create a custom HTML element for the marker
@@ -89,19 +142,25 @@ export default function Home() {
 
   function addEventMarker(event) {
     if (!mapRef.current) return; // Ensure the map is initialized
-
-    console.log(event);
+    let url = '/usermarker.png';
+    if (event.name =='HackaTUM MunichMeet Pitch')
+      url = '/minga.jpg';
     const el = document.createElement('div');
-    el.style.backgroundImage = `url('/usermarker.png')`;
+    el.style.backgroundImage = `url(${url})`; // Path to event icon
     el.style.width = '70px';
     el.style.height = '70px';
     el.style.backgroundSize = 'contain';
     el.style.backgroundRepeat = 'no-repeat';
     el.style.borderRadius = '50%';
+    el.onclick = function()
+    {
+      setEvent(event);
+      setShowEvent(true);
+    };
 
     // Create a popup with event information
     const popupContent = `
-      <div style="text-align: center; color: black;">
+      <div style="text-align: center; color: black;" onclick="handleClick()">
         <h3 style="margin-bottom: 5px; color: black;">${event.name}</h3>
         <img src="${event.place.img_url}" alt="Event Image" style="width: 150px; height: auto; border-radius: 10px; margin-bottom: 10px;">
         <p style="color: black;">${event.description}</p>
@@ -110,14 +169,12 @@ export default function Home() {
       </div>
     `;
 
-    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent);
+    
 
     new mapboxgl.Marker({ element: el })
       .setLngLat([event.place.lon, event.place.lat])
-      .setPopup(popup)
       .addTo(mapRef.current); // Add marker to the map
   }
-
 
   async function initEvents() {
     const fetchEvents = async () => {
@@ -132,15 +189,84 @@ export default function Home() {
     // Initial fetch and then set interval
     fetchEvents();
   }
+
+  // Update nearby user markers on the map
+  useEffect(() => {
+    if (mapRef.current) {
+      // Remove markers for users who are no longer nearby
+      Object.keys(nearbyMarkersRef.current).forEach((userid) => {
+        if (!nearbyUsers.find((user) => user.userid === userid)) {
+          nearbyMarkersRef.current[userid].remove();
+          delete nearbyMarkersRef.current[userid];
+        }
+      });
+
+      // Add/update markers for current nearby users
+      nearbyUsers.forEach((user) => {
+        if (!nearbyMarkersRef.current[user.userid]) {
+          // Create a new marker for the user
+          const el = document.createElement('div');
+          el.style.backgroundImage = `url('/cat.jpg')`; // Path to user icon
+          el.style.width = '50px';
+          el.style.height = '50px';
+          el.style.backgroundSize = 'contain';
+          el.style.backgroundRepeat = 'no-repeat';
+          el.style.borderRadius = '50%';
+
+          const popupContent = `
+            <div style="text-align: center; color: black;">
+              <p style="color: black;"><strong>User:</strong> ${user.userid}</p>
+              <p style="color: black;"><strong>Latitude:</strong> ${user.latitude}</p>
+              <p style="color: black;"><strong>Longitude:</strong> ${user.longitude}</p>
+            </div>
+          `;
+
+          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent);
+
+          const marker = new mapboxgl.Marker({ element: el })
+            .setLngLat([user.longitude, user.latitude])
+            .setPopup(popup)
+            .addTo(mapRef.current);
+
+          nearbyMarkersRef.current[user.userid] = marker; // Store the marker in the ref
+        }
+      });
+    }
+  }, [nearbyUsers]);
+
   useEffect(() => {
     let intervalId;
+  // Function to make the POST request
+  async function postUserPosition(lat, lon,userid) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/updateuserpos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userid,
+          lat,
+          lon,
+        }),
+      });
 
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('Error posting user position:', data.status);
+      }
+    } catch (error) {
+      console.error('Failed to post user position:', error);
+    }
+  }
     function updateUserMovement() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
             setUserPosition({ lat: latitude, lng: longitude }); // Correct use
+            postUserPosition(latitude, longitude,name);
+
           },
           (error) => console.error('Error retrieving location:', error),
           { enableHighAccuracy: true }
@@ -158,8 +284,7 @@ export default function Home() {
       clearInterval(intervalId);
     };
   }, []); // Empty dependency array ensures it runs only once on mount
-
-
+  // Generate a random user ID on load
 
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_API_KEY;
@@ -209,7 +334,26 @@ export default function Home() {
       });
     }
   }, [events]);
+// Define fetchhackatumevent as a const inside the component
+const fetchhackatumevent = async () => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/gethackatumevent`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json', // Ensures compatibility with Flask-CORS
+      },
+    });
 
+    const data = await res.json(); // Parse JSON response
+
+    // // Assuming the event is being displayed as a marker
+    // if (data.event && mapRef.current) {
+    //   addEventMarker(data.event);
+    // }
+  } catch (error) {
+    console.error('Failed to fetch hackatum event:', error);
+  }
+};
   useEffect(() => {
     if (mapRef.current) {
       // Add user marker
@@ -239,15 +383,26 @@ export default function Home() {
           className="w-24 h-24 object-contain rounded-full"
         />
       </div>
-
+      {showSuccess && (<QrReaderFeedback />)}
+      {showEvent && <EventModal event={curEvent} setShowEvent={setShowEvent} />}
       {/* Scoreboard Overlay */}
       <Scoreboard />
       {/* QR Code Button */}
       
       <QrCodeButton />
 
-      {/* QrReaderFeedback Overlay */}
-      {showSuccess && <QrReaderFeedback />}
+      <button
+  onClick={fetchhackatumevent} // Invoke the function properly
+  className="absolute top-5 right-4 z-50 w-8 h-8 pt-3 opacity-20 hover:opacity-25"
+  style={{ border: 'none', cursor: 'pointer' }}
+>
+  <img
+    src="/qrcodebutton.png"
+    alt="QR Code Button"
+    className="w-full h-full object-contain"
+  />
+</button>
+
 
     </div>
   );

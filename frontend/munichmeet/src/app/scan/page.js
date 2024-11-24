@@ -62,7 +62,7 @@ export default function Scan() {
 
       var qr_dict = JSON.parse(result[0].rawValue);
       setQRCodeInfo(qr_dict);
-      console.log("qr code info: ", );
+      console.log("qr code info: ", qr_dict );
       // Go to the map view with the qr code successful read 
       router.push('/');
     }
@@ -84,7 +84,7 @@ export default function Scan() {
           maxWidth: '300px',
           marginBottom: '20px',
         }}
-        class="border border-gray-300 p-2 rounded"
+        className="border border-gray-300 p-2 rounded"
       />
       <br />
 
@@ -101,7 +101,7 @@ export default function Scan() {
           maxWidth: '300px',
           marginBottom: '20px',
         }}
-        class="border border-gray-300 p-2 rounded"
+        className="border border-gray-300 p-2 rounded"
       />  
 
   
@@ -118,7 +118,7 @@ export default function Scan() {
         {qrCodeData && (
           <div >
             <p>Scan the QR Code below:</p>
-            <img src={qrCodeData} alt="Generated QR Code" class="mx-auto"/>
+            <img src={qrCodeData} alt="Generated QR Code" className="mx-auto"/>
           </div>
         )}
       </div>
