@@ -60,7 +60,7 @@ useEffect(() => {
     if (!userPosition.lat || !userPosition.lng || !name) return; // Exit early if parameters are invalid
 
     try {
-      const radius = 500; // Radius in meters
+      const radius = 30; // Radius in meters
 
       const requestBody = {
         lat: userPosition.lat,
