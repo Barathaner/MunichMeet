@@ -9,7 +9,7 @@ from module import event_generator
 
 app = Flask(__name__, static_folder='out/_next/static', template_folder='out')
 CORS(app)
-all_users = {}
+all_users = {"test":User(48.2624566, 11.6672299)}
 all_events = {}
 
 
@@ -78,45 +78,55 @@ def getotherusersinradius():
     R = 6_371_000  # Earth's radius in meters
 
     try:
-        lat = float(request.args.get('lat'))
-        lon = float(request.args.get('lon'))
-        radius = int(request.args.get('radius'))
-    except:
-        return jsonify({ 'status': 'Error: Invalid arguments!' }), 400
+        data = request.get_json()  # Parse JSON body
+        lat = float(data['lat'])
+        lon = float(data['lon'])
+        radius = int(data['radius'])
+        current_user_id = str(data['userid'])  # Get current user's ID as string
+    except (KeyError, TypeError, ValueError):
+        return jsonify({'status': 'Error: Invalid arguments!'}), 400
 
     latitude_main_user, longitude_main_user = map(math.radians, [lat, lon])
 
     users_in_radius = {}
     for userid, user in all_users.items():
-        latitude_current_user, longitude_current_user = map(math.radians, user.latitude, user.longitude)
+        # Skip the current user
+        if str(userid) == current_user_id:
+            continue
+
+        latitude_current_user, longitude_current_user = map(math.radians, [user.latitude, user.longitude])
 
         dlat = latitude_current_user - latitude_main_user
         dlon = longitude_current_user - longitude_main_user
 
         # Haversine formula
-        a = math.sin(dlat / 2)**2  +  math.cos(latitude_main_user) * math.cos(latitude_current_user) * math.sin(dlon / 2)**2
+        a = math.sin(dlat / 2)**2 + math.cos(latitude_main_user) * math.cos(latitude_current_user) * math.sin(dlon / 2)**2
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
         distance = R * c
 
         if distance <= radius:
-            users_in_radius.update({ userid : user.__dict__ })
+            users_in_radius.update({userid: user.__dict__})
         
-    return jsonify({ 'users' : users_in_radius }), 201
+    return jsonify({'users': users_in_radius}), 201
+
+
+
 
 
 @app.route('/api/updateuserpos', methods=['POST'])
 def updateuserpos():
     try:
-        userid = int(request.args.get('userid'))
-
-        lat = float(request.args.get('lat'))
-        lon = float(request.args.get('lon'))
+        data = request.json
+        userid = data['userid']
+        lat = float(data['lat'])
+        lon = float(data['lon'])
     except:
         return jsonify({ 'status': 'Invalid arguments!' }), 400
 
     if(userid not in all_users):
         all_users[userid] = User(lat,lon)
+
 
     try:
         all_users[userid].latitude = lat
