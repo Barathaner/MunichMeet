@@ -75,8 +75,8 @@ export default function QrReaderFeedback() {
                     {/* First Div: Text Content */}
                     <div
                         style={{
-                            backgroundColor: '#ffcccc',
-                            padding: '20px',
+                            backgroundColor: 'white',
+                            padding: '20px',    
                             textAlign: 'center',
                             marginBottom: '20px',
                             width: '300px',
@@ -96,7 +96,8 @@ export default function QrReaderFeedback() {
                             alignItems: 'center',
                             width: '300px',
                             borderRadius: '15px',
-                            marginBottom: '20px'
+                            marginBottom: '20px',
+                            background: "lightblue"
                         }}
                     >
                         {/* Left Column */}
@@ -143,7 +144,7 @@ export default function QrReaderFeedback() {
                     {/* Third Div */}
                     <div
                         style={{
-                            backgroundColor: '#ffcccc',
+                            backgroundColor: 'orange',
                             padding: '20px',
                             textAlign: 'center',
                             marginBottom: '20px',
