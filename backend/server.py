@@ -56,10 +56,12 @@ def getallevents():
     return jsonify({'events': serialized_events}), 200
 
 
-@app.route('/api/participate', methods=['GET'])
+@app.route('/api/participate', methods=['POST'])
 def participate():
     try:
-        eventid = int(request.args.get('eventid'))
+        data = request.get_json()
+
+        eventid = data['eventid']
     except:
         return jsonify({ 'status' : 'Error: Invalid arguments!' }), 400
     

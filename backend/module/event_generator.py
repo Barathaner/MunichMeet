@@ -58,8 +58,7 @@ ACTUAL_PLACES = {
 }
 
 # the amount of events being spawned by add_new_events()
-EVENTS_PER_5_DAYS = 5
-
+EVENTS_PER_5_DAYS = 20
 weather_forecast = []
 
     
