@@ -9,7 +9,8 @@ const userPointsAwarded = 10;
 
 export default function QrReaderFeedback() {
     const { points, addPoints, resetPoints, name,setShowSuccess, qrCodeInfo,setQRCodeInfo } = useUserPoints();
-
+    console.log("dfdfdfd: ", typeof qrCodeInfo);
+    console.log("www: ", )
     return (
                      <div className="h-screen flex flex-col relative"
                 style={{

@@ -16,8 +16,8 @@ var person_data_dict = {"name": "",
 export default function Scan() {
   const [message, setMessage] = useState('');
   // For showing QR code
-  const [inputValueName, setInputValueName] = useState('Alejandro');
-  const [inputValueURL, setInputValueURL] = useState('https://thispersondoesnotexist.com/');
+  const [inputValueName, setInputValueName] = useState('');
+  const [inputValueURL, setInputValueURL] = useState('');
   const [qrCodeData, setQRCodeData] = useState('');
   const userPointsAwarded = 10;  
   const { points, addPoints, resetPoints, name,setShowSuccess, setQRCode, qrCodeInfo, setQRCodeInfo } = useUserPoints();
@@ -55,17 +55,14 @@ export default function Scan() {
 
   const handleQRScan = (result) => {
     if (result?.[0]?.rawValue) {
-      console.log(result[0].rawValue); // Log scanned value
+      console.log("this is the raw value, ",result[0].rawValue); // Log scanned value
       setData(result[0].rawValue); // Update scanned data
       setShowSuccess(true); // Close the scanner after successful scan
       addPoints(userPointsAwarded)
-      // setQRCodeData({"name": "",
-      //                "instagram_url": ""
-      // })
-      person_data_dict["name"] = inputValueName;
-      person_data_dict["instagram_url"] = inputValueURL;
-      setQRCodeInfo(person_data_dict);
-      console.log("qr code info: ", qrCodeInfo);
+
+      var qr_dict = JSON.parse(result[0].rawValue);
+      setQRCodeInfo(qr_dict);
+      console.log("qr code info: ", );
       // Go to the map view with the qr code successful read 
       router.push('/');
     }
@@ -74,10 +71,10 @@ export default function Scan() {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>QR Code Generator: Name</h1>
+      <h1>Name</h1>
       <input
         type="text"
-        placeholder="Enter text to generate QR Code"
+        placeholder="Enter name to generate QR Code"
         value={inputValueName}
         onChange={(e) => setInputValueName(e.target.value)}
         style={{
@@ -91,10 +88,10 @@ export default function Scan() {
       />
       <br />
 
-      <h1>QR Code Generator: Social media URL</h1>
+      <h1>Social media URL</h1>
       <input
         type="text"
-        placeholder="Enter text to generate QR Code social media"
+        placeholder="Enter social media URL to generate QR Code social media"
         value={inputValueURL}
         onChange={(e) => setInputValueURL(e.target.value)}
         style={{
@@ -134,11 +131,21 @@ export default function Scan() {
       <p>Scanned Result: {data}</p>
 
       {showScanner && (
-        <Scanner
-          onScan={handleQRScan}
-          onError={(error) => console.error("Error scanning QR code:", error)}
-          containerStyle={{ width: "100%", maxWidth: "500px", margin: "0 auto" }}
-        />
+        <div className="w-4/5 max-w-[500px] mx-auto my-8 p-4 bg-white rounded-lg shadow-lg">
+          <Scanner
+            onScan={handleQRScan}
+            onError={(error) => console.error("Error scanning QR code:", error)}
+            containerStyle={{
+              width: "40%",         // Set width to 80% to make it smaller
+              maxWidth: "500px",    // Ensure it doesn't grow too large
+              margin: "20px auto",  // Adds margin on top/bottom and centers it horizontally
+              padding: "10px",      // Optional: add some padding to separate the scanner from its container
+              borderRadius: "10px", // Optional: rounded corners for the container
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" // Optional: adds a soft shadow for visual appeal
+            }}
+          />   
+        </div> 
+       
       )}
        <QrCodeButton />
     </div>
