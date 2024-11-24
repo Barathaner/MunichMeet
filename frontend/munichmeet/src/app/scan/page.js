@@ -42,8 +42,8 @@ export default function Scan() {
 
   const generateQRCode = async () => {
     try {
-      // person_data_dict["name"] = inputValueName;
-      // person_data_dict["instagram_url"] = inputValueURL;
+      person_data_dict["name"] = inputValueName;
+      person_data_dict["instagram_url"] = inputValueURL;
 
       const qrCode = await QRCode.toDataURL(JSON.stringify(person_data_dict) || 'Default QR Code');
       setQRCodeData(qrCode);
