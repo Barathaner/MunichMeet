@@ -12,6 +12,7 @@ export const useUserPoints = () => useContext(UserPointsContext);
 export const UserPointsProvider = ({ children }) => {
   const [points, setPoints] = useState(0);
   const [name, setName] = useState("MunichMeet");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Function to add points
   const addPoints = (value) => setPoints((prev) => prev + value);
@@ -20,7 +21,7 @@ export const UserPointsProvider = ({ children }) => {
   const resetPoints = () => setPoints(0);
 
   return (
-    <UserPointsContext.Provider value={{ points, addPoints, resetPoints,name }}>
+    <UserPointsContext.Provider value={{ points, addPoints, resetPoints,name,setShowSuccess,showSuccess }}>
       {children}
     </UserPointsContext.Provider>
   );
