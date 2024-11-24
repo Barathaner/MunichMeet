@@ -13,7 +13,7 @@ export default function Home() {
   const router = useRouter();
   const [showEvent, setShowEvent] = useState(true);
   const [events, setEvents] = useState([]); // State to store events
-  const dummyevent = {title:"dddd",description:"iudshfiu",date:"12.92.23",location:"kasjdi"};
+  const dummyevent = {title:"Open Get Together",description:"iudshfiu",date:"24.11.2024",location:"Marienplatz"};
 
   const [userPosition, setUserPosition] = useState({
     lat: null,
