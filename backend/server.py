@@ -81,7 +81,7 @@ def gethackatumevent():
     #     return jsonify({ 'status': 'Error: Event with eventid=0 does not exist!' }), 400
 
     
-@app.route('/api/participate', methods=['GET'])
+@app.route('/api/participate', methods=['POST'])
 def participate():
     try:
         data = request.get_json()

@@ -15,6 +15,7 @@ export default function Home() {
   const userMarkerRef = useRef(null); // Reference for the user marker
   const [events, setEvents] = useState([]); // State to store events
   const nearbyMarkersRef = useRef({}); // Reference to manage nearby user markers
+  const [curEvent, setEvent] = useState(null);
   const hackatumeventRef = useRef(null); // Reference to manage nearby user markers
 
   const [userPosition, setUserPosition] = useState({
