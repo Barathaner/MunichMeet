@@ -60,7 +60,7 @@ useEffect(() => {
     if (!userPosition.lat || !userPosition.lng || !name) return; // Exit early if parameters are invalid
 
     try {
-      const radius = 500; // Radius in meters
+      const radius = 30; // Radius in meters
 
       const requestBody = {
         lat: userPosition.lat,
@@ -140,9 +140,24 @@ useEffect(() => {
 
   function addEventMarker(event) {
     if (!mapRef.current) return; // Ensure the map is initialized
+
+
     let url = '/usermarker.png';
     if (event.name =='HackaTUM MunichMeet Pitch')
       url = '/minga.jpg';
+    else if (event.name == 'Beach Day')
+      url = '/beach.png';
+    else if (event.name == 'Picnic together')
+      url = '/picnic.png';
+    else if (event.name == 'Communal Walk')
+      url = '/walk.png';
+    else if (event.name == 'Museum Tour')
+      url = '/museum.png';
+    else if (event.name == 'Open Get Together')
+      url = '/interact.png';
+    else if (event.name == 'Reading Together')
+      url = '/book.png';
+
     const el = document.createElement('div');
     el.style.backgroundImage = `url(${url})`; // Path to event icon
     el.style.width = '70px';
@@ -204,9 +219,9 @@ useEffect(() => {
         if (!nearbyMarkersRef.current[user.userid]) {
           // Create a new marker for the user
           const el = document.createElement('div');
-          el.style.backgroundImage = `url('/cat.jpg')`; // Path to user icon
-          el.style.width = '50px';
-          el.style.height = '50px';
+          el.style.backgroundImage = `url('/starUsers.png')`; // Path to user icon
+          el.style.width = '60px';
+          el.style.height = '60px';
           el.style.backgroundSize = 'contain';
           el.style.backgroundRepeat = 'no-repeat';
           el.style.borderRadius = '50%';
