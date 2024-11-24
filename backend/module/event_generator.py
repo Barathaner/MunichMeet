@@ -70,10 +70,10 @@ EVENTS = [
                 "You can swim in designated areas, enjoying the cool, refreshing water, or relax together " +
                 "with picnic blankets and snacks. Bring your barbecue and " + 
                 "share meals with friends and future friends."),
-    EventPreset("Picnic together", [PARK],datetime.time(10),datetime.time(17),2, 20, 0,
+    EventPreset("Picnic together", [PARK],datetime.time(10),datetime.time(17),2, 0, 15,
                 "Looking to make new friends and enjoy a relaxing day outdoors? Come join our Community Picnic. " + 
                 "You can bring your own food, share it and connect over discovering foods others have brought."),
-    EventPreset("Communal Walk", [PARK,WATER],datetime.time(9),datetime.time(20),1, 0, 10,
+    EventPreset("Communal Walk", [PARK,WATER],datetime.time(9),datetime.time(20),1, 0, 15,
                 "Join for a casual group walk where great conversations and new connections are just a few steps away! " +
                 "Just continue along for a bit or explore the whole park with some interesting new people."),
     EventPreset("Museum Tour", [MUSEUM],datetime.time(10),datetime.time(17),2, -999, 999,
@@ -84,7 +84,7 @@ EVENTS = [
                 "Looking for a fun, casual way to meet new faces? Come hang out together!" +
                 "Whether you're new to the area, looking to meet people with shared interests, or " + 
                 "just eager to step outside your routine, this is the perfect place to connect with others in a friendly, stress-free environment."),
-    EventPreset("Reading Together", [PARK,WATER,CAFE],datetime.time(10),datetime.time(17),3, 20, 0,
+    EventPreset("Reading Together", [PARK,WATER,CAFE],datetime.time(10),datetime.time(17),3, 2, 10,
                 "Love books and great conversations? Come join this Reading & Discussion event, " +
                 "where book lovers gather to read, share ideas, and meet new people in a cozy, welcoming atmosphere"),]
 
