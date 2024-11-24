@@ -42,12 +42,12 @@ export default function Scan() {
 
   const generateQRCode = async () => {
     try {
-      person_data_dict["name"] = inputValueName;
-      person_data_dict["instagram_url"] = inputValueURL;
+      // person_data_dict["name"] = inputValueName;
+      // person_data_dict["instagram_url"] = inputValueURL;
 
       const qrCode = await QRCode.toDataURL(JSON.stringify(person_data_dict) || 'Default QR Code');
       setQRCodeData(qrCode);
-      setQRCodeInfo(JSON.stringify(person_data_dict))
+      // setQRCodeInfo(JSON.stringify(person_data_dict))
     } catch (error) {
       console.error('Error generating QR Code:', error);
     }
@@ -87,6 +87,7 @@ export default function Scan() {
           maxWidth: '300px',
           marginBottom: '20px',
         }}
+        class="border border-gray-300 p-2 rounded"
       />
       <br />
 
@@ -103,20 +104,24 @@ export default function Scan() {
           maxWidth: '300px',
           marginBottom: '20px',
         }}
-      />
+        class="border border-gray-300 p-2 rounded"
+      />  
 
-      <Scoreboard />
-      <button
-        onClick={generateQRCode}
-        className="blue-rounded-button"
-      >
-        Generate QR Code
-      </button>
+  
+      <div>
+        <button
+          onClick={generateQRCode}
+          className="blue-rounded-button"
+        >
+          Generate QR Code
+        </button> 
+      </div>
+      
       <div style={{ marginTop: '30px' }}>
         {qrCodeData && (
-          <div>
+          <div >
             <p>Scan the QR Code below:</p>
-            <img src={qrCodeData} alt="Generated QR Code" />
+            <img src={qrCodeData} alt="Generated QR Code" class="mx-auto"/>
           </div>
         )}
       </div>
