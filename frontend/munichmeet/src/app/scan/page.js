@@ -6,6 +6,8 @@ import Scoreboard from '../components/Scoreboard';
 import "./styles.css"; // Import the CSS file
 import { useRouter } from "next/navigation";
 import { useUserPoints } from '../context/context';
+import QrCodeButton from '../components/QrCodeButton';
+
 
 
 export default function Scan() {
@@ -102,7 +104,9 @@ export default function Scan() {
           containerStyle={{ width: "100%", maxWidth: "500px", margin: "0 auto" }}
         />
       )}
+       <QrCodeButton />
     </div>
+   
   );
 }
 

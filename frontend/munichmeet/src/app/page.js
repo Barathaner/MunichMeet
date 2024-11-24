@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import EventModal from './components/EventModal';
 import Scoreboard from './components/Scoreboard';
 import QrReaderFeedback from './components/QrReaderFeedback';
+import QrCodeButton from './components/QrCodeButton';
+
 
 export default function Home() {
   const router = useRouter();
@@ -241,17 +243,8 @@ export default function Home() {
       {/* Scoreboard Overlay */}
       <Scoreboard />
       {/* QR Code Button */}
-      <button
-        onClick={() => router.push('/scan')}
-        className="absolute bottom-2 right-4 z-50 w-16 h-16  p-0 bg-yellow-400 hover:opacity-25"
-        style={{ border: 'none', cursor: 'pointer' }}
-      >
-        <img
-          src="/qrcodebutton.png"
-          alt="QR Code Button"
-          className="w-full h-full object-contain"
-        />
-      </button>
+      
+      <QrCodeButton />
 
       {/* QrReaderFeedback Overlay */}
       {showSuccess && <QrReaderFeedback />}
