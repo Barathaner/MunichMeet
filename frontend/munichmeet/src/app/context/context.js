@@ -23,7 +23,7 @@ export const UserPointsProvider = ({ children }) => {
   // Function to add points
   const addPoints = (value) => setPoints((prev) => prev + value);
 
-  const addParticipant = (eventid) => {fetch('http://localhost:8000/api/participate', {
+  const addParticipant = (eventid) => {fetch(`${process.env.NEXT_PUBLIC_URL}/api/participate`, {
     method: "POST", // HTTP method
     headers: {
       "Content-Type": "application/json", // Specify the content type
