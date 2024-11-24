@@ -15,6 +15,9 @@ export const UserPointsProvider = ({ children }) => {
   const [name, setName] = useState(generateRandomUserId());
   const [showSuccess, setShowSuccess] = useState(false);
   const [showEvent, setShowEvent] = useState(false);
+  const [qrCodeInfo, setQRCodeInfo] = useState({"name": "test",
+                                                "instagram_url": "test.com"
+  })
 
   function generateRandomUserId() {
     // Generate a random string for user ID
@@ -35,8 +38,10 @@ export const UserPointsProvider = ({ children }) => {
   // Function to reset points
   const resetPoints = () => setPoints(0);
 
+  // const setQRcodeFields = (name, url) => setQRCodeInfo()
+
   return (
-    <UserPointsContext.Provider value={{ points, addPoints, resetPoints,name,setShowSuccess,showSuccess,setShowEvent,showEvent,addParticipant,setName}}>
+    <UserPointsContext.Provider value={{ points, addPoints, resetPoints,name,setShowSuccess,showSuccess,qrCodeInfo,setQRCodeInfo,setShowEvent,showEvent,addParticipant,setName}}>
       {children}
     </UserPointsContext.Provider>
   );

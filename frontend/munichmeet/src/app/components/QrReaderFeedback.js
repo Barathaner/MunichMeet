@@ -8,8 +8,7 @@ const person_photo = "https://img.freepik.com/premium-vector/little-kid-avatar-p
 const userPointsAwarded = 10;  
 
 export default function QrReaderFeedback() {
-    const { points, addPoints, resetPoints, name,setShowSuccess } = useUserPoints();
-
+    const { points, addPoints, resetPoints, name,setShowSuccess, qrCodeInfo,setQRCodeInfo } = useUserPoints();
     return (
                      <div className="h-screen flex flex-col relative"
                 style={{
@@ -104,13 +103,13 @@ export default function QrReaderFeedback() {
                         <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                                 <p style={{ margin: 0, fontWeight: 'bold', fontSize: '16px' }}>
-                                    {person_name}
+                                    {qrCodeInfo["name"]}
                                 </p>
                             </div>
 
                             <img
                                 src={person_photo}
-                                alt="John Doe"
+                                alt="a pic of a person"
                                 style={{
                                     width: '50px',
                                     height: '50px',
@@ -124,7 +123,7 @@ export default function QrReaderFeedback() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             {/* Instagram Button */}
                             <a
-                                href="https://www.instagram.com"
+                                href={qrCodeInfo["instagram_url"]}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{
@@ -152,7 +151,7 @@ export default function QrReaderFeedback() {
                             borderRadius: '15px',
                         }}
                     >
-                        You got {points} points!
+                        You got {userPointsAwarded} points!
                     </div>
                 </div>
             </div>
