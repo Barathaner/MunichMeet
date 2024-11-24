@@ -10,11 +10,16 @@ export const useUserPoints = () => useContext(UserPointsContext);
 
 // Provider component
 export const UserPointsProvider = ({ children }) => {
+  
   const [points, setPoints] = useState(0);
-  const [name, setName] = useState("MunichMeet");
+  const [name, setName] = useState(generateRandomUserId());
   const [showSuccess, setShowSuccess] = useState(false);
   const [showEvent, setShowEvent] = useState(false);
 
+  function generateRandomUserId() {
+    // Generate a random string for user ID
+    return 'user_' + Math.random().toString(36).substring(2, 10);
+  }
   // Function to add points
   const addPoints = (value) => setPoints((prev) => prev + value);
 
@@ -31,7 +36,7 @@ export const UserPointsProvider = ({ children }) => {
   const resetPoints = () => setPoints(0);
 
   return (
-    <UserPointsContext.Provider value={{ points, addPoints, resetPoints,name,setShowSuccess,showSuccess,setShowEvent,showEvent,addParticipant}}>
+    <UserPointsContext.Provider value={{ points, addPoints, resetPoints,name,setShowSuccess,showSuccess,setShowEvent,showEvent,addParticipant,setName}}>
       {children}
     </UserPointsContext.Provider>
   );
