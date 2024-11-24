@@ -12,8 +12,8 @@ def test_participate():
     params = {
         "eventid": 0
     }
-    response = requests.get(f"{BASE_URL}/participate", params=params)
-    print("\nGET /participate")
+    response = requests.post(f"{BASE_URL}/participate", params=params)
+    print("\nPOST /participate")
     print("Status Code:", response.status_code)
     print("Response:", response.json())
 

@@ -11,11 +11,11 @@ import QrReaderFeedback from './components/QrReaderFeedback';
 
 export default function Home() {
   const router = useRouter();
-  const [showEvent, setShowEvent] = useState(true);
   const mapRef = useRef(null); // Reference for the map
   const userMarkerRef = useRef(null); // Reference for the user marker
   const [events, setEvents] = useState([]); // State to store events
   const nearbyMarkersRef = useRef({}); // Reference to manage nearby user markers
+  const [curEvent, setEvent] = useState(null);
   const hackatumeventRef = useRef(null); // Reference to manage nearby user markers
 
   const [userPosition, setUserPosition] = useState({
@@ -121,7 +121,7 @@ useEffect(() => {
     };
   }, []); // Empty dependency array ensures it runs only once on mount
   // Get the user points from the context
-  const { points, addPoints, resetPoints, name ,showSuccess,setName} = useUserPoints();
+  const { points, addPoints, resetPoints, name ,showSuccess, setName, showEvent,setShowEvent} = useUserPoints();
 
   function addUserMarker() {
     // Create a custom HTML element for the marker
@@ -150,10 +150,15 @@ useEffect(() => {
     el.style.backgroundSize = 'contain';
     el.style.backgroundRepeat = 'no-repeat';
     el.style.borderRadius = '50%';
+    el.onclick = function()
+    {
+      setEvent(event);
+      setShowEvent(true);
+    };
 
     // Create a popup with event information
     const popupContent = `
-      <div style="text-align: center; color: black;">
+      <div style="text-align: center; color: black;" onclick="handleClick()">
         <h3 style="margin-bottom: 5px; color: black;">${event.name}</h3>
         <img src="${event.place.img_url}" alt="Event Image" style="width: 150px; height: auto; border-radius: 10px; margin-bottom: 10px;">
         <p style="color: black;">${event.description}</p>
@@ -162,14 +167,12 @@ useEffect(() => {
       </div>
     `;
 
-    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent);
+    
 
     new mapboxgl.Marker({ element: el })
       .setLngLat([event.place.lon, event.place.lat])
-      .setPopup(popup)
       .addTo(mapRef.current); // Add marker to the map
   }
-
 
   async function initEvents() {
     const fetchEvents = async () => {
@@ -379,6 +382,7 @@ const fetchhackatumevent = async () => {
         />
       </div>
 
+      {showEvent && <EventModal event={curEvent} setShowEvent={setShowEvent} />}
       {/* Scoreboard Overlay */}
       <Scoreboard />
       {/* QR Code Button */}
